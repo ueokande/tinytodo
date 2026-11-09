@@ -79,6 +79,23 @@ Pushes to `master`, including merged pull requests, deploy to Pages only after a
 
 For initial setup, select **Settings → Pages → Build and deployment → Source → GitHub Actions**. No personal access token is required.
 
+### Workflow dependency lockfile
+
+GitHub Actions dependencies are pinned in `.github/workflows/actions.lock` using GitHub's official lockfile format. It records commit SHAs, repository and owner identities, and transitive composite-action dependencies. Workflow files use exact release tags for readability; the lockfile fixes the commits that execute.
+
+CI runs `github/gh-actions-lock` v0.4.1 with `--verify` before application checks. This validates upstream provenance as well as workflow coverage. A failed verification blocks tests and deployment.
+
+To update workflows or refresh action pins, use an authenticated GitHub CLI:
+
+```sh
+gh extension install github/gh-actions-lock --pin v0.4.1
+gh actions-lock
+gh actions-lock --verify
+git add .github/workflows/
+```
+
+Use `gh actions-lock --relock` to intentionally advance existing pins after reviewing upstream changes. Commit workflow and lockfile updates together. `gh actions-lock --verify-local` is an offline coverage check; it does not replace the online provenance check in CI.
+
 ## Data and privacy
 
 Lists are stored in `localStorage` for the current browser and origin. They are not synced between devices. Clearing browser data, ending a private browsing session, or losing the device can remove your lists. Moving to a different origin creates a separate storage area.

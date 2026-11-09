@@ -13,16 +13,32 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 jobs:
+  lockfile:
+    name: Verify Actions lockfile
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4.4.0
+        with:
+          persist-credentials: false
+      - name: Install the official lockfile CLI
+        run: gh extension install github/gh-actions-lock --pin v0.4.1
+      - name: Verify locked workflow dependencies
+        run: gh actions-lock --verify
+
   check:
     name: Lint and tests
+    needs: lockfile
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
       VITE_BASE_PATH: /tinytodo/
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v4.4.0
+      - uses: pnpm/action-setup@v4.3.0
+      - uses: actions/setup-node@v4.4.0
         with:
           node-version: 24
           cache: pnpm
@@ -37,7 +53,7 @@ jobs:
         run: pnpm test:e2e
       - name: Save browser test diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: browser-test-results
           path: |
@@ -63,23 +79,23 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v4.4.0
+      - uses: pnpm/action-setup@v4.3.0
+      - uses: actions/setup-node@v4.4.0
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Configure Pages
         id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v5.0.0
       - name: Build for the configured Pages URL
         env:
           VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
         run: pnpm build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3.0.1
         with:
           path: dist
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4.0.5
