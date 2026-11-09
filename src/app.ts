@@ -59,10 +59,6 @@ export function mountApp(root: HTMLElement) {
         ),
       ),
     );
-    $("empty").hidden = active.length > 0;
-    $("empty-title").textContent = done.length
-      ? "すべて完了しました"
-      : "項目はありません";
     $("completed").hidden = !done.length;
     $("done").hidden = folded;
     $("fold").setAttribute("aria-expanded", String(!folded));
@@ -85,8 +81,6 @@ export function mountApp(root: HTMLElement) {
       items.filter((x) => !x.done),
       "完了した項目を削除しました",
     );
-  $("help").onclick = () => $<HTMLDialogElement>("about").showModal();
-  $("close-help").onclick = () => $<HTMLDialogElement>("about").close();
   render();
   if (!storageAvailable)
     toast("保存データを読み込めませんでした。ブラウザの設定をご確認ください。");

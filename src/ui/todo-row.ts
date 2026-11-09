@@ -18,13 +18,9 @@ export function createTodoRow(item: Todo, onToggle: () => void) {
   const title = document.createElement("span");
   title.className = "item-title";
   title.textContent = item.title;
-  const grip = document.createElement("span");
-  grip.className = "swipe-indicator";
-  grip.textContent = "→";
-  grip.setAttribute("aria-hidden", "true");
   const act = onToggle;
   button.onclick = act;
-  el.append(button, title, grip);
+  el.append(button, title);
   wrapper.append(backdrop, el);
   let start: { x: number; y: number; id: number } | null = null;
   let dx = 0;
