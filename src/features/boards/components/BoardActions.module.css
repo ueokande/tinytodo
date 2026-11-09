@@ -1,0 +1,13 @@
+.heading {
+  font-size: 17px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  margin: 12px 12px 16px;
+}
+.actions {
+  display: grid;
+}
+.actions > button {
+  text-align: left;
+  width: 100%;
+}

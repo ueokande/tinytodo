@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { Notice } from "../hooks/useToast.ts";
-import { animate, motion } from "../ui/motion.ts";
+import type { Notice } from "../../hooks/useToast.ts";
+import { animate, motion } from "../../ui/motion.ts";
 import styles from "./Toast.module.css";
 export function Toast({
   notice,

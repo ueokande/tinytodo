@@ -93,18 +93,35 @@ Legacy `tiny.todos.v1` lists migrate into a **My list** board. Existing `tiny.bo
 
 ```text
 src/
-  App.tsx         Application composition and task actions
-  components/     React components and colocated CSS Modules
-  hooks/          Persistent board state and notification state
-  domain/         Framework-independent models and operations
-  storage/        Storage validation and legacy data migration
-  ui/             Animation and viewport browser integrations
-scripts/          Deployment paths and service worker generation
-tests/            Vitest unit and Hook tests
-e2e/              Playwright browser tests
+  App.tsx              Composes the screen and controls overlay visibility
+  layouts/             Page geometry and layout slots
+  components/
+    controls/          Shared button styling and native button behavior
+    overlays/          Modal sheet, drag dismissal, and focus lifecycle
+    feedback/          Notifications and undo feedback
+    icons/             Shared SVG icons
+  features/
+    boards/components/ Board header, picker, list, name form, and confirmation
+    tasks/components/  Task composer, groups, rows, and completed section
+    tasks/hooks/       Swipe gestures and list animation lifecycle
+  hooks/               App commands, persistence, notifications, offline support
+  domain/              Framework-independent models and operations
+  storage/             Storage validation and legacy data migration
+  ui/                  Low-level animation and viewport browser integrations
+scripts/               Deployment paths and service worker generation
+tests/                 Vitest domain, Hook, and component tests
+e2e/                   Playwright browser tests
 ```
 
-Global CSS contains only resets and shared defaults. Browser integrations are attached and cleaned up through React effects. Animations use the Web Animations API and CSS; storage updates do not wait for animation completion.
+### Component boundaries
+
+`App` connects the application model to feature components through `AppLayout`. The layout owns page geometry; it does not know about boards, storage, or task operations. `useTodoApp` coordinates domain commands, persistence, board-specific drafts, and undo. Only successful storage writes become visible state updates.
+
+Feature components receive the data and callbacks they need, such as `onSelect`, `onRename`, and `onToggle`, rather than an application-wide state setter. Temporary state stays near its owner: the board name form owns its draft and native validation, the completed section owns folding, and the board picker owns its navigation and save errors.
+
+`BottomSheet` handles native dialog behavior, focus return, dismissal, and animation cleanup independently of board management. The board picker keeps the outgoing content visible until its exit finishes. Gesture and list-animation Hooks keep browser integrations separate from task markup.
+
+Styles are colocated CSS Modules. Global CSS contains only resets and shared defaults. Browser integrations register and clean up through React effects. Storage updates do not wait for animations.
 
 ## Contributing
 

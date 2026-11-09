@@ -1,0 +1,49 @@
+.row {
+  display: flex;
+  align-items: center;
+}
+.select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+  gap: 16px;
+  text-align: left;
+}
+.select > span:first-child {
+  overflow-wrap: anywhere;
+}
+.check {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #426a50;
+}
+.menu {
+  width: 48px;
+  flex-shrink: 0;
+  font-size: 24px;
+}
+.add {
+  width: 100%;
+  border-top: 1px solid #dfe6e0;
+  text-align: left;
+  margin-top: 12px;
+  padding-top: 16px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .check svg {
+    animation: checkIn 180ms ease;
+  }
+}
+@keyframes checkIn {
+  from {
+    opacity: 0;
+    scale: 0.7;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}

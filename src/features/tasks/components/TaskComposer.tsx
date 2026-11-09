@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useRef } from "react";
-import { positionComposer } from "../ui/composer.ts";
+import { MAX_TITLE_LENGTH } from "../../../domain/todo.ts";
+import { positionComposer } from "../../../ui/composer.ts";
 import styles from "./TaskComposer.module.css";
 
 interface Props {
@@ -27,7 +28,7 @@ export function TaskComposer({ value, onChange, onAdd }: Props) {
           onChange={(e) => onChange(e.target.value)}
           aria-label="New task title"
           placeholder="Add a task"
-          maxLength={200}
+          maxLength={MAX_TITLE_LENGTH}
           autoComplete="off"
           enterKeyHint="done"
           required

@@ -1,0 +1,16 @@
+.main {
+  max-width: 640px;
+  margin: auto;
+  padding: 0 20px calc(var(--composer-height) + var(--viewport-bottom) + 16px);
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0 20px;
+}
+@media (min-width: 700px) {
+  .main {
+    padding-top: 24px;
+  }
+}

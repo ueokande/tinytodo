@@ -18,7 +18,9 @@ test("sheet animates both ways, restores focus, and can reopen after interrupted
   await expect(page.locator("#board-switch")).toBeFocused();
   await page.locator("#board-switch").click();
   const exiting = await page.evaluate(() => {
-    document.getElementById("board-close")?.click();
+    document
+      .querySelector<HTMLButtonElement>('dialog button[aria-label="Close"]')
+      ?.click();
     return Boolean(document.querySelector("dialog")?.open);
   });
   expect(exiting).toBe(true);
@@ -32,7 +34,7 @@ test("drag handle snaps back for a short pull and dismisses for a long pull", as
 }) => {
   await page.goto("./");
   await page.locator("#board-switch").click();
-  await page.locator("#board-close").hover();
+  await page.getByRole("button", { name: "Close", exact: true }).hover();
   // Wait on actual animations rather than a fixed delay before measuring geometry.
   await page.locator("#board-picker").evaluate(async (el) => {
     await Promise.allSettled(
@@ -76,7 +78,9 @@ test("reduced motion skips movement and modal exit remains immediately usable", 
   ).toBe(0);
   expect(
     await page.evaluate(() => {
-      document.getElementById("board-close")?.click();
+      document
+        .querySelector<HTMLButtonElement>('dialog button[aria-label="Close"]')
+        ?.click();
       return Boolean(document.querySelector("dialog")?.open);
     }),
   ).toBe(false);

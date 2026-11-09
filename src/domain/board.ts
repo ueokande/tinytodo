@@ -22,7 +22,7 @@ export function selectedBoard(state: BoardState): Board {
   return board;
 }
 export function validBoardName(
-  state: BoardState,
+  state: { boards: readonly Board[] },
   name: string,
   exceptId?: string,
 ): boolean {

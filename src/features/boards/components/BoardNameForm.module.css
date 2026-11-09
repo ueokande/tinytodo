@@ -1,0 +1,28 @@
+.form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  border: 0;
+  background: transparent;
+  padding: 12px;
+  gap: 16px;
+}
+.form:focus-within {
+  outline: none;
+}
+.form label {
+  grid-column: 1 / -1;
+  font-size: 15px;
+}
+.form input {
+  border: 1px solid #b7cbbb;
+  border-radius: 8px;
+  padding: 12px;
+  background: white;
+}
+.form input:focus {
+  outline: 2px solid #9cbcaa;
+  outline-offset: 1px;
+}
+.save {
+  align-self: center;
+}
