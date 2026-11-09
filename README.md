@@ -83,7 +83,7 @@ For initial setup, select **Settings → Pages → Build and deployment → Sour
 
 GitHub Actions dependencies are pinned in `.github/workflows/actions.lock` using GitHub's official lockfile format. It records commit SHAs, repository and owner identities, and transitive composite-action dependencies. Workflow files use exact release tags for readability; the lockfile fixes the commits that execute.
 
-CI runs `github/gh-actions-lock` v0.4.1 with `--verify` before application checks. This validates upstream provenance as well as workflow coverage. A failed verification blocks tests and deployment.
+GitHub automatically validates onboarded dependencies against the lockfile when workflows run, including locked commits and repository identities. No separate verification job is required.
 
 To update workflows or refresh action pins, use an authenticated GitHub CLI:
 
@@ -94,7 +94,7 @@ gh actions-lock --verify
 git add .github/workflows/
 ```
 
-Use `gh actions-lock --relock` to intentionally advance existing pins after reviewing upstream changes. Commit workflow and lockfile updates together. `gh actions-lock --verify-local` is an offline coverage check; it does not replace the online provenance check in CI.
+Use `gh actions-lock --relock` to intentionally advance existing pins after reviewing upstream changes. Commit workflow and lockfile updates together. `gh actions-lock --verify-local` is an offline coverage check; use `--verify` when updating pins to check upstream provenance as well.
 
 ## Data and privacy
 
