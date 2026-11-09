@@ -54,7 +54,10 @@ E2Eはタスク操作、保存、オフライン動作、下部入力欄、旧�
 - `src/storage/board-storage.ts`: ボードと選択状態の保存、旧データ移行と検証
 - `src/storage/todo-storage.ts`: 旧リストの読み込みと項目の検証
 - `src/ui/`: HTMLレイアウト、スワイプ可能な行、通知と取り消し、キーボード表示時の入力欄位置調整
-- `src/app.ts`: 状態の保持、ユーザー操作と各モジュールの接続
+- `src/app.ts`: 保存成功後に状態を反映する処理、ユーザー操作と各モジュールの接続
+- `src/ui/todo-list.ts`: リストの描画・折りたたみと、更新前後のアニメーション
+- `src/ui/dom.ts`: HTML要素の存在と型を検証する共通取得処理
+- `src/ui/board-sheet.css`, `src/ui/motion.css`: ボードパネルとアニメーションのスタイル
 - `src/main.ts`: 起動処理
 - `scripts/build-sw.ts`: ビルド成果物からオフライン用Service Workerを生成
 - `tests/`, `e2e/`: ロジック・保存の単体テストと実ブラウザテスト
@@ -68,3 +71,14 @@ export XDG_DATA_HOME=/workspace/.local/share
 export XDG_CACHE_HOME=/workspace/.cache
 pnpm install --frozen-lockfile --store-dir /workspace/.pnpm-store
 ```
+
+## アニメーション
+
+UIライブラリは追加せず、Web Animations APIとCSSを使用しています。既存の素のTypeScript・DOM構成で必要な開閉・行移動を扱えるため、フレームワークや追加のランタイム依存を持たない構成を選びました。
+
+- パネル開閉・ドラッグ・戻り: `sheet-motion.ts`
+- タスクの追加・完了・削除と行の詰め直し: `list-motion.ts`
+- 共通の時間・イージングと動きの抑制: `motion.ts`
+- 通知の出入り: `toast.ts`
+
+動きは160〜260msを基本に、transformとopacityを中心にしています。OSの `prefers-reduced-motion` に従って動きを省略し、保存の成否や状態更新はアニメーションの終了に依存させません。パネルは終了までモーダルを維持し、閉じた後にボード切り替えボタンへフォーカスを戻します。連続Escape・再表示・ドラッグ・動きの抑制・連続完了と取り消しをブラウザテストで確認しています。Android実機のジェスチャー・キーボード挙動は別途確認が必要です。

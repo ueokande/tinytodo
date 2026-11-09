@@ -10,6 +10,7 @@ async function addBoard(page: Page, name: string) {
   await page.getByRole("button", { name: "作成", exact: true }).click();
 }
 async function addTask(page: Page, title: string) {
+  await expect(page.getByRole("dialog")).toBeHidden();
   await page.getByLabel("新しい項目のタイトル").fill(title);
   await page.getByRole("button", { name: "項目を追加" }).click();
 }

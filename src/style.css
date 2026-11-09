@@ -54,6 +54,7 @@ h1 {
   align-items: center;
   gap: 10px;
   font-weight: 650;
+  min-width: 0;
 }
 #count {
   color: #5d7364;
@@ -61,6 +62,7 @@ h1 {
   background: #e5ece7;
   padding: 4px 9px;
   border-radius: 12px;
+  flex-shrink: 0;
 }
 
 .composer {
@@ -74,7 +76,7 @@ h1 {
   border-top: 1px solid #e5ebe6;
 }
 
-form {
+.task-form {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -85,7 +87,7 @@ form {
   max-width: 600px;
   margin: 0 auto;
 }
-form:focus-within {
+.task-form:focus-within {
   outline: 2px solid #9cbcaa;
   outline-offset: 1px;
 }
@@ -102,7 +104,7 @@ input {
   font-size: 16px;
 }
 input::placeholder {
-  color: #88968c;
+  color: #6c7e70;
 }
 .add {
   background: #426a50;
@@ -184,7 +186,7 @@ input::placeholder {
   background: #eef2ed;
 }
 .is-done .item-title {
-  color: #7d8d81;
+  color: #6f8175;
   text-decoration: line-through;
 }
 .is-done .check::before {
@@ -260,145 +262,4 @@ input::placeholder {
 }
 #board-name {
   overflow-wrap: anywhere;
-}
-h1 {
-  min-width: 0;
-}
-#count {
-  flex-shrink: 0;
-}
-.board-sheet {
-  position: fixed;
-  top: auto;
-  bottom: var(--viewport-bottom);
-  margin: 0 auto;
-  width: 100%;
-  max-width: 640px;
-  max-height: min(75dvh, calc(100dvh - var(--viewport-bottom) - 20px));
-  overflow-y: auto;
-  padding: 12px 20px calc(20px + env(safe-area-inset-bottom));
-  border: 0;
-  border-radius: 20px 20px 0 0;
-  background: #f7f8f6;
-  color: inherit;
-}
-.board-sheet::backdrop {
-  background: #182b2255;
-}
-.sheet-handle {
-  width: 32px;
-  height: 4px;
-  border-radius: 4px;
-  background: #c5d0c8;
-  margin: 0 auto 8px;
-}
-.sheet-toolbar {
-  display: flex;
-  justify-content: space-between;
-}
-.board-sheet button {
-  min-height: 48px;
-  background: transparent;
-  color: inherit;
-  padding: 8px 12px;
-}
-#board-close {
-  margin-left: auto;
-  font-size: 24px;
-}
-#board-back {
-  font-size: 22px;
-}
-.board-row {
-  display: flex;
-  align-items: center;
-}
-.board-select {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex: 1;
-  min-width: 0;
-  gap: 16px;
-  text-align: left;
-}
-.board-select > span:first-child {
-  overflow-wrap: anywhere;
-}
-.board-check {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  color: #426a50;
-}
-.board-menu {
-  width: 48px;
-  flex-shrink: 0;
-  font-size: 24px;
-}
-#board-add {
-  width: 100%;
-  border-top: 1px solid #dfe6e0;
-  text-align: left;
-  margin-top: 12px;
-  padding-top: 16px;
-}
-.board-sheet h2 {
-  font-size: 17px;
-  font-weight: 600;
-  overflow-wrap: anywhere;
-  margin: 12px 12px 16px;
-}
-#board-actions > button {
-  display: block;
-  width: 100%;
-  text-align: left;
-}
-.board-sheet .danger {
-  color: #a33c37;
-}
-.board-sheet button:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-.board-form {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  border: 0;
-  background: transparent;
-  padding: 12px;
-  gap: 16px;
-}
-.board-form:focus-within {
-  outline: none;
-}
-.board-form label {
-  grid-column: 1 / -1;
-  font-size: 15px;
-}
-.board-form input {
-  border-bottom: 1px solid #8eaa98;
-}
-.board-form input:focus {
-  outline: 2px solid #9cbcaa;
-  outline-offset: 3px;
-}
-#board-save {
-  color: #426a50;
-}
-#board-confirm p {
-  font-size: 14px;
-  line-height: 1.7;
-  margin: 12px;
-}
-.confirm-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-#board-error {
-  color: #a33c37;
-  font-size: 13px;
-  margin: 12px;
 }

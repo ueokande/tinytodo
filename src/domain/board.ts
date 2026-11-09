@@ -69,3 +69,18 @@ export function deleteBoard(state: BoardState, id: string): BoardState {
       state.selectedBoardId === id ? boards[0].id : state.selectedBoardId,
   };
 }
+
+export function updateBoardItems(
+  state: BoardState,
+  id: string,
+  items: Todo[],
+): BoardState {
+  if (!state.boards.some((board) => board.id === id))
+    throw new Error("Board is missing");
+  return {
+    ...state,
+    boards: state.boards.map((board) =>
+      board.id === id ? { ...board, items } : board,
+    ),
+  };
+}

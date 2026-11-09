@@ -6,6 +6,7 @@ import {
   initialState,
   renameBoard,
   selectedBoard,
+  updateBoardItems,
 } from "../src/domain/board.ts";
 import {
   BOARD_KEY,
@@ -79,4 +80,16 @@ test("a failed save preserves the last persisted boards", () => {
     ),
   );
   assert.deepEqual(readBoards(storage), state);
+});
+
+test("updating one board preserves the other boards and selection", () => {
+  const first = initialState();
+  const state = addBoard(first, "メモ");
+  const items = [{ id: "milk", title: "牛乳", done: false }];
+  const next = updateBoardItems(state, first.selectedBoardId, items);
+  assert.deepEqual(next.boards[0].items, items);
+  assert.strictEqual(next.boards[1], state.boards[1]);
+  assert.equal(next.selectedBoardId, state.selectedBoardId);
+  assert.deepEqual(state.boards[0].items, []);
+  assert.throws(() => updateBoardItems(state, "missing", items));
 });

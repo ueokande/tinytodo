@@ -5,20 +5,26 @@ import {
   renameBoard,
   validBoardName,
 } from "../domain/board.ts";
+import { element } from "./dom.ts";
 import { check } from "./icons.ts";
+import { enter } from "./motion.ts";
+import { createSheetMotion } from "./sheet-motion.ts";
 export function createBoardPicker(
   root: HTMLElement,
   getState: () => BoardState,
   save: (state: BoardState) => boolean,
   select: (id: string) => boolean,
 ) {
-  const get = <T extends HTMLElement = HTMLElement>(id: string): T => {
-    const element = root.querySelector<T>(`#${id}`);
-    if (!element) throw new Error(`Missing picker element: ${id}`);
-    return element;
-  };
-  const dialog = get<HTMLDialogElement>("board-picker");
-  const input = get<HTMLInputElement>("board-title");
+  const get = (id: string) => element(root, id, HTMLElement);
+  const dialog = element(root, "board-picker", HTMLDialogElement);
+  const sheet = createSheetMotion(dialog);
+  const input = element(root, "board-title", HTMLInputElement);
+  dialog.addEventListener("close", () => {
+    if (!dialog.open)
+      element(root, "board-switch", HTMLButtonElement).focus({
+        preventScroll: true,
+      });
+  });
   let targetId: string | null = null;
   let editing = false;
   const target = () => getState().boards.find((board) => board.id === targetId);
@@ -39,6 +45,7 @@ export function createBoardPicker(
     ])
       get(panel).hidden = panel !== id;
     get("board-back").hidden = id === "board-overview";
+    if (dialog.open) enter(get(id), id === "board-overview" ? -12 : 12, 0);
   }
   function overview() {
     const state = getState();
@@ -61,7 +68,7 @@ export function createBoardPicker(
           button.setAttribute("aria-current", "true");
         }
         button.onclick = () => {
-          if (select(board.id)) dialog.close();
+          if (select(board.id)) sheet.close();
           else {
             get("board-error").textContent =
               "ボードの選択を保存できませんでした。";
@@ -76,7 +83,7 @@ export function createBoardPicker(
         menu.onclick = () => {
           targetId = board.id;
           get("board-action-name").textContent = board.name;
-          const remove = get<HTMLButtonElement>("board-delete");
+          const remove = element(root, "board-delete", HTMLButtonElement);
           remove.disabled = state.boards.length === 1;
           remove.title = remove.disabled ? "最後のボードは削除できません" : "";
           show("board-actions");
@@ -106,7 +113,7 @@ export function createBoardPicker(
     overview();
     get("board-add").focus();
   };
-  get("board-close").onclick = () => dialog.close();
+  get("board-close").onclick = () => sheet.close();
   dialog.addEventListener("click", (event) => {
     if (event.target !== dialog) return;
     const bounds = dialog.getBoundingClientRect();
@@ -116,10 +123,10 @@ export function createBoardPicker(
       event.clientY < bounds.top ||
       event.clientY > bounds.bottom
     )
-      dialog.close();
+      sheet.close();
   });
   input.oninput = () => input.setCustomValidity("");
-  get<HTMLFormElement>("board-form").onsubmit = (event) => {
+  element(root, "board-form", HTMLFormElement).onsubmit = (event) => {
     event.preventDefault();
     const state = getState();
     if (
@@ -139,7 +146,7 @@ export function createBoardPicker(
       editing && targetId
         ? renameBoard(state, targetId, input.value)
         : addBoard(state, input.value);
-    if (persist(next)) dialog.close();
+    if (persist(next)) sheet.close();
   };
   get("board-delete").onclick = () => {
     const board = target();
@@ -155,12 +162,12 @@ export function createBoardPicker(
     get("board-add").focus();
   };
   get("board-delete-confirm").onclick = () => {
-    if (targetId && persist(deleteBoard(getState(), targetId))) dialog.close();
+    if (targetId && persist(deleteBoard(getState(), targetId))) sheet.close();
   };
   return {
     open() {
       overview();
-      dialog.showModal();
+      sheet.open();
       get("board-list")
         .querySelector<HTMLButtonElement>(".board-select[aria-current]")
         ?.focus();

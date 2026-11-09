@@ -1,4 +1,6 @@
 import "./style.css";
+import "./ui/board-sheet.css";
+import "./ui/motion.css";
 import { mountApp } from "./app.ts";
 
 const root = document.querySelector<HTMLElement>("#app");

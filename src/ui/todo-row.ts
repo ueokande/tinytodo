@@ -1,8 +1,10 @@
 import type { Todo } from "../domain/todo.ts";
 import { check } from "./icons.ts";
+import { animate, motion } from "./motion.ts";
 export function createTodoRow(item: Todo, onToggle: () => void) {
   const wrapper = document.createElement("div");
   wrapper.className = "swipe-row";
+  wrapper.dataset.todoId = item.id;
   const backdrop = document.createElement("div");
   backdrop.className = "swipe-back";
   backdrop.innerHTML = check;
@@ -24,6 +26,7 @@ export function createTodoRow(item: Todo, onToggle: () => void) {
   wrapper.append(backdrop, el);
   let start: { x: number; y: number; id: number } | null = null;
   let dx = 0;
+  let settling: Animation | null = null;
   el.onpointerdown = (e) => {
     if (
       (e.target instanceof Element && e.target.closest("button")) ||
@@ -31,6 +34,7 @@ export function createTodoRow(item: Todo, onToggle: () => void) {
       e.button !== 0
     )
       return;
+    settling?.cancel();
     start = { x: e.clientX, y: e.clientY, id: e.pointerId };
     dx = 0;
   };
@@ -50,10 +54,20 @@ export function createTodoRow(item: Todo, onToggle: () => void) {
     }
   };
   function reset() {
+    const distance = dx;
     start = null;
     dx = 0;
     el.style.transform = "";
     wrapper.classList.remove("ready");
+    if (distance)
+      settling = animate(
+        el,
+        [
+          { transform: `translateX(${distance}px)` },
+          { transform: "translateX(0)" },
+        ],
+        motion.settle,
+      );
   }
   el.onpointerup = () => {
     const complete = dx >= 80;
