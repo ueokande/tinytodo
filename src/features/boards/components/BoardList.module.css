@@ -47,3 +47,15 @@
     scale: 1;
   }
 }
+.sortName {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 12px;
+}
+.archive {
+  display: block;
+  width: 100%;
+  text-align: left;
+  color: #647b6c;
+}

@@ -9,11 +9,13 @@ import { AppLayout } from "./layouts/AppLayout.tsx";
 
 export function App() {
   const app = useTodoApp();
+  const [editing, setEditing] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const switchButton = useRef<HTMLButtonElement>(null);
   const previousBoard = useRef(app.board.id);
   useEffect(() => {
     if (previousBoard.current !== app.board.id) {
+      setEditing(false);
       window.scrollTo({ top: 0, behavior: "instant" });
       previousBoard.current = app.board.id;
     }
@@ -22,6 +24,8 @@ export function App() {
     <AppLayout
       header={
         <BoardHeader
+          editing={editing}
+          onEdit={() => setEditing((value) => !value)}
           name={app.board.name}
           remainingCount={app.remainingCount}
           onOpen={() => setPickerOpen(true)}
@@ -42,6 +46,9 @@ export function App() {
             boards={app.boards}
             selectedId={app.selectedBoardId}
             returnFocusRef={switchButton}
+            onArchive={app.archiveBoard}
+            onRestore={app.restoreBoard}
+            onMove={app.reorderBoards}
             onSelect={app.selectBoard}
             onCreate={app.createBoard}
             onRename={app.renameBoard}
@@ -54,6 +61,9 @@ export function App() {
       <TodoList
         key={app.board.id}
         items={app.board.items}
+        editing={editing}
+        onDelete={app.deleteTask}
+        onMove={app.reorderTasks}
         onToggle={app.toggleTask}
         onClear={app.clearCompleted}
       />

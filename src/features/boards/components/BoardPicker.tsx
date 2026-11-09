@@ -5,12 +5,18 @@ import {
   useRef,
   useState,
 } from "react";
+import { Button } from "../../../components/controls/Button.tsx";
 import {
   BottomSheet,
   type BottomSheetHandle,
 } from "../../../components/overlays/BottomSheet.tsx";
-import { type Board, validBoardName } from "../../../domain/board.ts";
+import {
+  activeBoards,
+  type Board,
+  validBoardName,
+} from "../../../domain/board.ts";
 import { enter } from "../../../ui/motion.ts";
+import { ArchivedBoards } from "./ArchivedBoards.tsx";
 import { BoardActions } from "./BoardActions.tsx";
 import { BoardList } from "./BoardList.tsx";
 import { BoardNameForm } from "./BoardNameForm.tsx";
@@ -18,7 +24,7 @@ import styles from "./BoardPicker.module.css";
 import { DeleteBoardConfirmation } from "./DeleteBoardConfirmation.tsx";
 
 type Page =
-  | { type: "list" | "create" }
+  | { type: "list" | "create" | "archived" }
   | { type: "actions" | "rename" | "delete"; board: Board };
 interface View {
   boards: readonly Board[];
@@ -31,6 +37,9 @@ interface Props extends View {
   onCreate: (name: string) => boolean;
   onRename: (id: string, name: string) => boolean;
   onDelete: (id: string) => boolean;
+  onArchive: (id: string) => boolean;
+  onRestore: (id: string) => boolean;
+  onMove: (id: string, targetId: string) => boolean;
 }
 /** Navigation and outgoing-panel lifetime only; each panel owns its local interaction. */
 export function BoardPicker({
@@ -42,7 +51,11 @@ export function BoardPicker({
   onCreate,
   onRename,
   onDelete,
+  onArchive,
+  onRestore,
+  onMove,
 }: Props) {
+  const [editing, setEditing] = useState(false);
   const [page, setPage] = useState<Page>({ type: "list" });
   const [error, setError] = useState<string | null>(null);
   const [exitView, setExitView] = useState<View | null>(null);
@@ -55,6 +68,7 @@ export function BoardPicker({
   }, [page.type]);
   function navigate(next: Page) {
     setError(null);
+    setEditing(false);
     setPage(next);
   }
   function attempt(action: () => boolean) {
@@ -72,12 +86,31 @@ export function BoardPicker({
     case "list":
       content = (
         <BoardList
-          boards={view.boards}
+          boards={activeBoards(view.boards)}
+          editing={editing}
+          onMove={(id, targetId) => {
+            if (!onMove(id, targetId))
+              setError("Unable to save the board order.");
+            else setError(null);
+          }}
+          archivedCount={view.boards.filter((board) => board.archived).length}
+          onArchived={() => navigate({ type: "archived" })}
           selectedId={view.selectedId}
           selectedRef={selected}
           onSelect={(id) => attempt(() => onSelect(id))}
           onOptions={(board) => navigate({ type: "actions", board })}
           onCreate={() => navigate({ type: "create" })}
+        />
+      );
+      break;
+    case "archived":
+      content = (
+        <ArchivedBoards
+          boards={view.boards.filter((board) => board.archived)}
+          onRestore={(id) => {
+            if (onRestore(id)) navigate({ type: "list" });
+            else setError("Unable to restore this board.");
+          }}
         />
       );
       break;
@@ -106,7 +139,9 @@ export function BoardPicker({
       content = (
         <BoardActions
           name={page.board.name}
-          canDelete={view.boards.length > 1}
+          canDelete={activeBoards(view.boards).length > 1}
+          canArchive={activeBoards(view.boards).length > 1}
+          onArchive={() => attempt(() => onArchive(page.board.id))}
           onRename={() => navigate({ type: "rename", board: page.board })}
           onDelete={() => navigate({ type: "delete", board: page.board })}
         />
@@ -129,6 +164,13 @@ export function BoardPicker({
       label="Boards"
       ref={sheet}
       onClose={onClose}
+      toolbar={
+        page.type === "list" ? (
+          <Button onClick={() => setEditing((value) => !value)}>
+            {editing ? "Done" : "Edit"}
+          </Button>
+        ) : undefined
+      }
       onBack={
         page.type === "list" ? undefined : () => navigate({ type: "list" })
       }

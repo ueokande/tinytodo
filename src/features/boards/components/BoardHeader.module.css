@@ -30,3 +30,18 @@
 .boardName {
   overflow-wrap: anywhere;
 }
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.edit {
+  background: transparent;
+  color: #426a50;
+  font-size: 14px;
+  min-height: 44px;
+  padding: 0 4px;
+  flex-shrink: 0;
+}

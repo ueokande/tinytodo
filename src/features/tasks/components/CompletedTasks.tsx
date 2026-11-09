@@ -8,8 +8,18 @@ interface Props {
   items: readonly Todo[];
   onToggle: (id: string) => void;
   onClear: () => void;
+  editing: boolean;
+  onDelete: (id: string) => void;
+  onMove: (id: string, targetId: string) => void;
 }
-export function CompletedTasks({ items, onToggle, onClear }: Props) {
+export function CompletedTasks({
+  items,
+  onToggle,
+  onClear,
+  editing,
+  onDelete,
+  onMove,
+}: Props) {
   const [folded, setFolded] = useState(false);
   const group = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
@@ -46,6 +56,9 @@ export function CompletedTasks({ items, onToggle, onClear }: Props) {
         items={items}
         onToggle={onToggle}
         hidden={folded}
+        editing={editing}
+        onDelete={onDelete}
+        onMove={onMove}
       />
     </section>
   );

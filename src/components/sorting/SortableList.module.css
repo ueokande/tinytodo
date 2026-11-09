@@ -1,0 +1,25 @@
+.entry {
+  position: relative;
+  background: inherit;
+  border-radius: inherit;
+}
+.dragging {
+  box-shadow: 0 8px 24px #24352b25;
+  opacity: 0.9;
+}
+.handle {
+  width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: #718878;
+  font-size: 26px;
+  touch-action: none;
+  cursor: grab;
+  padding: 0;
+}
+.handle:active {
+  cursor: grabbing;
+}
