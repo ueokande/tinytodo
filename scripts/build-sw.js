@@ -1,0 +1,11 @@
+import {readdir,readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+const assets=(await readdir('dist/assets')).map(x=>'/assets/'+x);
+const urls=['/','/index.html','/manifest.webmanifest','/icon-192.png','/icon-512.png','/icon.svg',...assets];
+const hash=createHash('sha256'); for(const url of urls)hash.update(await readFile('dist'+(url==='/'?'/index.html':url)));
+const cache='tiny-'+hash.digest('hex').slice(0,16);
+await writeFile('dist/sw.js',`const CACHE=${JSON.stringify(cache)}, URLS=${JSON.stringify(urls)};
+self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(URLS)));});
+self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('tiny-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',event=>{if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;event.respondWith(caches.open(CACHE).then(cache=>cache.match(event.request,{ignoreVary:true})).then(cached=>cached||fetch(event.request).catch(error=>{if(event.request.mode==='navigate')return caches.match('/index.html');throw error;})));});
+`);
