@@ -1,4 +1,4 @@
-# tiny
+# TinyToDo
 
 [![CI](https://github.com/ueokande/tinytodo/actions/workflows/ci.yml/badge.svg)](https://github.com/ueokande/tinytodo/actions/workflows/ci.yml)
 

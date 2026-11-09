@@ -1,6 +1,6 @@
 {
-  "name": "tiny — Simple to-do lists",
-  "short_name": "tiny",
+  "name": "TinyToDo",
+  "short_name": "TinyToDo",
   "lang": "en",
   "start_url": "./",
   "scope": "./",
