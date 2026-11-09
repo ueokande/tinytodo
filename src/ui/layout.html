@@ -1,0 +1,39 @@
+<main>
+  <header>
+    <h1>マイリスト <span id="count"></span></h1>
+    <button type="button" id="help" class="icon-button" aria-label="このアプリについて">?</button>
+  </header>
+  <section aria-label="ToDoリスト">
+    <form id="add-form">
+      <span class="plus" aria-hidden="true">＋</span>
+      <input id="title" aria-label="新しい項目のタイトル" placeholder="何をリストに入れる？" maxlength="200" autocomplete="off" required>
+      <button type="submit" class="add" aria-label="項目を追加">追加</button>
+    </form>
+    <p class="hint">右にスワイプ、または ○ をタップして完了</p>
+    <div id="active" class="items"></div>
+    <div id="empty" class="empty" hidden>
+      <h2 id="empty-title">項目はありません</h2>
+      <p>上の入力欄から追加してください。</p>
+    </div>
+    <section id="completed" hidden>
+      <div class="done-heading">
+        <button type="button" id="fold" aria-expanded="true" aria-controls="done">
+          完了した項目 <span id="done-count"></span> <span id="chevron" aria-hidden="true">⌃</span>
+        </button>
+        <button type="button" id="clear">まとめて削除</button>
+      </div>
+      <div id="done" class="items"></div>
+    </section>
+  </section>
+</main>
+<div id="toast" role="status" hidden>
+  <span id="message"></span>
+  <button type="button" id="undo">元に戻す</button>
+</div>
+<dialog id="about" aria-labelledby="about-title">
+  <button type="button" id="close-help" class="icon-button close" aria-label="閉じる">×</button>
+  <h2 id="about-title">使い方と保存について</h2>
+  <p>タイトルだけの、小さなToDoリスト。右にスワイプするか、丸いボタンを押すと完了します。完了した項目も、同じ操作で戻せます。</p>
+  <p>データはこのブラウザに保存されます。同期やアカウント登録はありません。ブラウザのデータを消去するとリストも消えるため、大切な情報の唯一の保管場所にはしないでください。</p>
+  <p>AndroidのChromeメニューから「ホーム画面に追加」でアプリとして使えます。一度読み込めばオフラインでも利用できます。</p>
+</dialog>
