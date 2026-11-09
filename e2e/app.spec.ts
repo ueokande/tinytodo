@@ -4,7 +4,7 @@ test("add, swipe, undo, reload, clear and offline restart", async ({
   page,
   context,
 }) => {
-  await page.goto("/");
+  await page.goto("./");
   await page.getByLabel("新しい項目のタイトル").fill("牛乳");
   await page.getByRole("button", { name: "項目を追加" }).click();
   await expect(page.locator("#active .item-title")).toHaveText("牛乳");
@@ -41,7 +41,7 @@ test("add, swipe, undo, reload, clear and offline restart", async ({
   await page.screenshot({ path: "/tmp/tinytodo-mobile.png", fullPage: true });
 });
 test("title is rendered as text", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("./");
   await page
     .getByLabel("新しい項目のタイトル")
     .fill("<img src=x onerror=alert(1)>");
@@ -59,7 +59,7 @@ test("existing saved items survive the UI migration", async ({ page }) => {
       JSON.stringify([{ id: "existing", title: "買い物メモ", done: false }]),
     );
   });
-  await page.goto("/");
+  await page.goto("./");
   await expect(page.locator("#board-name")).toBeVisible();
   await expect(page.locator("#active .item-title")).toHaveText("買い物メモ");
   await expect(page.locator("footer, .intro")).toHaveCount(0);
@@ -82,7 +82,7 @@ test("bottom composer stays visible and leaves room for the last item and undo",
       );
     }
   });
-  await page.goto("/");
+  await page.goto("./");
   const composer = page.locator("#composer");
   const before = await composer.boundingBox();
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -117,7 +117,7 @@ test("composer follows simulated keyboard resize and viewport pan", async ({
     });
     Object.defineProperty(window, "visualViewport", { value: viewport });
   });
-  await page.goto("/");
+  await page.goto("./");
   await page.getByLabel("新しい項目のタイトル").focus();
   await page.evaluate(() => {
     if (!window.visualViewport) throw new Error("Visual viewport missing");

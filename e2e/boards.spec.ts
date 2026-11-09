@@ -17,7 +17,7 @@ async function addTask(page: Page, title: string) {
 test("switch, rename, restore selection and delete boards without mixing tasks", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("./");
   await addTask(page, "牛乳");
   await page.getByLabel("新しい項目のタイトル").fill("買い物の下書き");
   await addBoard(page, "メモ");
@@ -70,7 +70,7 @@ test("sheet closes with Escape and backdrop, rejects duplicate names, and works 
   page,
   context,
 }) => {
-  await page.goto("/");
+  await page.goto("./");
   await open(page);
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeHidden();
@@ -108,7 +108,7 @@ test("sheet closes with Escape and backdrop, rejects duplicate names, and works 
 test("failed storage write keeps the sheet open and shows an error", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("./");
   await page.evaluate(() => {
     Storage.prototype.setItem = () => {
       throw new DOMException("Quota exceeded", "QuotaExceededError");

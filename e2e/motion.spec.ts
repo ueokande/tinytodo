@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("sheet animates both ways, restores focus, and can reopen after interrupted entry", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("./");
   const started = await page.evaluate(() => {
     document.getElementById("board-switch")?.click();
     const dialog = document.querySelector("dialog");
@@ -29,7 +29,7 @@ test("sheet animates both ways, restores focus, and can reopen after interrupted
 test("drag handle snaps back for a short pull and dismisses for a long pull", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("./");
   await page.locator("#board-switch").click();
   await page.locator("#board-close").hover();
   // Wait on actual animations rather than a fixed delay before measuring geometry.
@@ -64,7 +64,7 @@ test("reduced motion skips movement and modal exit remains immediately usable", 
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await page.goto("./");
   expect(
     await page.evaluate(() => {
       document.getElementById("board-switch")?.click();
@@ -93,7 +93,7 @@ test("reduced motion skips movement and modal exit remains immediately usable", 
 test("rapid completion and undo persist without leaving animation overlays", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("./");
   await page.getByLabel("新しい項目のタイトル").fill("パン");
   await page.getByRole("button", { name: "項目を追加" }).click();
   for (let i = 0; i < 3; i++) {

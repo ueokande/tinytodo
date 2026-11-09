@@ -27,7 +27,7 @@ E2Eはタスク操作、保存、オフライン動作、下部入力欄、旧�
 
 ## Androidで利用
 
-`pnpm build` で生成する `dist/` をHTTPSの静的ホスティングのルートに配置します（GitHub Pagesのサブパス配置は未対応）。AndroidのChromeで開き、メニューの「ホーム画面に追加」または「アプリをインストール」を選びます。アプリ用サーバーの運用は不要ですが、初回配信には静的ホスティングが必要です。Service Workerは本番ビルドのみで有効です。
+`pnpm build` で生成する `dist/` をHTTPSの静的ホスティングに配置します。ルート以外で公開するときは `VITE_BASE_PATH=/tinytodo/ pnpm build` のように配信パスを指定します。AndroidのChromeで開き、メニューの「ホーム画面に追加」または「アプリをインストール」を選びます。アプリ用サーバーの運用は不要ですが、初回配信には静的ホスティングが必要です。Service Workerは本番ビルドのみで有効です。
 
 一度オンラインで読み込むとオフラインで起動・編集できます。リストは同じ端末・同じブラウザ・同じ配信元のlocalStorageに保存され、同期されません。ブラウザデータの消去、プライベートブラウズの終了、端末の紛失で失われる場合があります。
 
@@ -82,3 +82,19 @@ UIライブラリは追加せず、Web Animations APIとCSSを使用していま
 - 通知の出入り: `toast.ts`
 
 動きは160〜260msを基本に、transformとopacityを中心にしています。OSの `prefers-reduced-motion` に従って動きを省略し、保存の成否や状態更新はアニメーションの終了に依存させません。パネルは終了までモーダルを維持し、閉じた後にボード切り替えボタンへフォーカスを戻します。連続Escape・再表示・ドラッグ・動きの抑制・連続完了と取り消しをブラウザテストで確認しています。Android実機のジェスチャー・キーボード挙動は別途確認が必要です。
+
+## GitHub Actions / Pages
+
+`.github/workflows/ci.yml` は全ブランチへのPushとPRでLint・フォーマット、単体テスト、型チェック、本番ビルド、Chromiumのブラウザテストを実行します。CIはPagesと同じ `/tinytodo/` 配下で動作を検証します。失敗時はトレース・レポートを7日間保存します。
+
+`master` へのマージ（Push）後はチェック成功時のみGitHub Pagesへデプロイします。`master` を対象に手動実行も可能です。デプロイ用のパスはPages設定から取得するため、カスタムドメインにも対応できます。
+
+初回のみGitHubのリポジトリ **Settings → Pages → Build and deployment → Source** を **GitHub Actions** に設定してください。リポジトリでActionsが無効になっている場合は有効化も必要です。個人アクセストークンの登録は不要で、デプロイジョブだけにPages書き込みとOIDC権限を付与しています。
+
+ローカルでPagesと同じパスを確認する場合:
+
+```sh
+VITE_BASE_PATH=/tinytodo/ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium pnpm test:e2e
+```
+
+公開先を変更するとオリジンが変わる場合があり、その場合は端末内の既存リストとは別の保存領域になります。

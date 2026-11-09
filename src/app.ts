@@ -107,7 +107,7 @@ export function mountApp(root: HTMLElement) {
     toast("保存データを読み込めませんでした。ブラウザの設定をご確認ください。");
   if ("serviceWorker" in navigator && import.meta.env.PROD) {
     navigator.serviceWorker
-      .register("/sw.js")
+      .register(`${import.meta.env.BASE_URL}sw.js`)
       .catch(() =>
         toast(
           "オフラインの準備ができませんでした。オンラインで再読み込みしてください。",
