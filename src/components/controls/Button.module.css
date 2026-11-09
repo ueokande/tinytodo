@@ -1,0 +1,21 @@
+.button {
+  min-height: 48px;
+  background: transparent;
+  color: inherit;
+  padding: 8px 12px;
+}
+.primary {
+  color: #fff;
+  background: #426a50;
+  border-radius: 8px;
+}
+.danger {
+  color: #a33c37;
+}
+.plain {
+  background: transparent;
+}
+.button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

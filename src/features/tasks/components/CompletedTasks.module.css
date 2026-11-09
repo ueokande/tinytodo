@@ -1,0 +1,21 @@
+.doneHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  margin-bottom: 4px;
+}
+.doneHeading button {
+  background: transparent;
+  min-height: 44px;
+  font-size: 12px;
+  color: #647b6c;
+  padding: 0 4px;
+}
+.fold span {
+  margin-left: 6px;
+}
+.clear {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
