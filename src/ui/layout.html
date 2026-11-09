@@ -1,6 +1,6 @@
 <main>
   <header>
-    <h1>マイリスト <span id="count"></span></h1>
+    <h1><button type="button" id="board-switch" aria-haspopup="dialog" aria-controls="board-picker"><span id="board-name">マイリスト</span><span aria-hidden="true">⌄</span></button><span id="count"></span></h1>
   </header>
   <section aria-label="ToDoリスト">
     <div id="active" class="items"></div>
@@ -25,3 +25,28 @@
   <span id="message"></span>
   <button type="button" id="undo">元に戻す</button>
 </div>
+
+<dialog id="board-picker" class="board-sheet" aria-label="ボード">
+  <div class="sheet-handle" aria-hidden="true"></div>
+  <div class="sheet-toolbar"><button type="button" id="board-back" aria-label="戻る" hidden>←</button><button type="button" id="board-close" aria-label="閉じる">×</button></div>
+  <p id="board-error" role="alert" hidden></p>
+  <div id="board-overview">
+    <div id="board-list"></div>
+    <button type="button" id="board-add">＋ ボードを追加</button>
+  </div>
+  <section id="board-actions" hidden>
+    <h2 id="board-action-name"></h2>
+    <button type="button" id="board-rename">名前を変更</button>
+    <button type="button" id="board-delete" class="danger">削除</button>
+  </section>
+  <form id="board-form" class="board-form" hidden>
+    <label id="board-form-label" for="board-title">ボード名</label>
+    <input id="board-title" name="name" maxlength="40" autocomplete="off" required>
+    <button type="submit" id="board-save">作成</button>
+  </form>
+  <section id="board-confirm" hidden>
+    <h2 id="board-delete-title"></h2>
+    <p id="board-delete-detail"></p>
+    <div class="confirm-buttons"><button type="button" id="board-cancel">キャンセル</button><button type="button" id="board-delete-confirm" class="danger">削除する</button></div>
+  </section>
+</dialog>

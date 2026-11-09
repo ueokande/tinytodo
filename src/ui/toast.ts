@@ -12,7 +12,7 @@ export function createToast(
     container.hidden = true;
     action?.();
   };
-  return (message: string, action?: () => void): void => {
+  const notify = (message: string, action?: () => void): void => {
     clearTimeout(timer);
     undo = action;
     messageElement.textContent = message;
@@ -23,4 +23,11 @@ export function createToast(
       undo = undefined;
     }, 7000);
   };
+  return Object.assign(notify, {
+    dismiss() {
+      clearTimeout(timer);
+      undo = undefined;
+      container.hidden = true;
+    },
+  });
 }

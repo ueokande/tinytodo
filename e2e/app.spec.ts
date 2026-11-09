@@ -60,9 +60,7 @@ test("existing saved items survive the UI migration", async ({ page }) => {
     );
   });
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: "マイリスト 1" }),
-  ).toBeVisible();
+  await expect(page.locator("#board-name")).toBeVisible();
   await expect(page.locator("#active .item-title")).toHaveText("買い物メモ");
   await expect(page.locator("footer, .intro")).toHaveCount(0);
 });

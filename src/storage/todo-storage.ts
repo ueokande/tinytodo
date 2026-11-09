@@ -1,7 +1,7 @@
 import type { Todo } from "../domain/todo.ts";
 export const KEY = "tiny.todos.v1";
 export type TodoStorage = Pick<Storage, "getItem" | "setItem">;
-function isTodo(value: unknown): value is Todo {
+export function isTodo(value: unknown): value is Todo {
   if (typeof value !== "object" || value === null) return false;
   const item = value as Record<string, unknown>;
   return (
