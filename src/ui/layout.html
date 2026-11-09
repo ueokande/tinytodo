@@ -3,10 +3,6 @@
     <h1>マイリスト <span id="count"></span></h1>
   </header>
   <section aria-label="ToDoリスト">
-    <form id="add-form">
-      <input id="title" aria-label="新しい項目のタイトル" placeholder="追加" maxlength="200" autocomplete="off" required>
-      <button type="submit" class="add" aria-label="項目を追加">追加</button>
-    </form>
     <div id="active" class="items"></div>
     <section id="completed" hidden>
       <div class="done-heading">
@@ -19,6 +15,12 @@
     </section>
   </section>
 </main>
+<div id="composer" class="composer">
+    <form id="add-form">
+      <input id="title" aria-label="新しい項目のタイトル" placeholder="追加" maxlength="200" autocomplete="off" enterkeyhint="done" required>
+      <button type="submit" class="add" aria-label="項目を追加"><span aria-hidden="true">↑</span></button>
+    </form>
+</div>
 <div id="toast" role="status" hidden>
   <span id="message"></span>
   <button type="button" id="undo">元に戻す</button>

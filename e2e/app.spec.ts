@@ -66,3 +66,80 @@ test("existing saved items survive the UI migration", async ({ page }) => {
   await expect(page.locator("#active .item-title")).toHaveText("買い物メモ");
   await expect(page.locator("footer, .intro")).toHaveCount(0);
 });
+
+test("bottom composer stays visible and leaves room for the last item and undo", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    if (!localStorage.getItem("tiny.todos.v1")) {
+      localStorage.setItem(
+        "tiny.todos.v1",
+        JSON.stringify(
+          Array.from({ length: 25 }, (_, i) => ({
+            id: String(i),
+            title: `項目${i + 1}`,
+            done: false,
+          })),
+        ),
+      );
+    }
+  });
+  await page.goto("/");
+  const composer = page.locator("#composer");
+  const before = await composer.boundingBox();
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  const after = await composer.boundingBox();
+  expect(before).not.toBeNull();
+  expect(after?.y).toBe(before?.y);
+  const last = await page.locator("#active .item").last().boundingBox();
+  if (!last || !after) throw new Error("Missing layout bounds");
+  expect(last.y + last.height).toBeLessThanOrEqual(after.y);
+  await page.getByLabel("新しい項目のタイトル").fill("追加した項目");
+  await page.getByLabel("新しい項目のタイトル").press("Enter");
+  await expect(page.locator("#active .item-title").last()).toHaveText(
+    "追加した項目",
+  );
+  await expect(page.getByLabel("新しい項目のタイトル")).toBeFocused();
+  await page
+    .getByRole("button", { name: "項目1を完了にする", exact: true })
+    .click();
+  const toast = await page.locator("#toast").boundingBox();
+  const bar = await composer.boundingBox();
+  if (!toast || !bar) throw new Error("Missing notification bounds");
+  expect(toast.y + toast.height).toBeLessThanOrEqual(bar.y);
+});
+
+test("composer follows simulated keyboard resize and viewport pan", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const viewport = Object.assign(new EventTarget(), {
+      height: window.innerHeight,
+      offsetTop: 0,
+    });
+    Object.defineProperty(window, "visualViewport", { value: viewport });
+  });
+  await page.goto("/");
+  await page.getByLabel("新しい項目のタイトル").focus();
+  await page.evaluate(() => {
+    if (!window.visualViewport) throw new Error("Visual viewport missing");
+    Object.assign(window.visualViewport, { height: window.innerHeight - 300 });
+    window.visualViewport?.dispatchEvent(new Event("resize"));
+  });
+  await expect(page.locator("#composer")).toHaveCSS("bottom", "300px");
+  await page.evaluate(() => {
+    if (!window.visualViewport) throw new Error("Visual viewport missing");
+    Object.assign(window.visualViewport, { offsetTop: 50 });
+    window.visualViewport?.dispatchEvent(new Event("scroll"));
+  });
+  await expect(page.locator("#composer")).toHaveCSS("bottom", "250px");
+  await page.evaluate(() => {
+    if (!window.visualViewport) throw new Error("Visual viewport missing");
+    Object.assign(window.visualViewport, {
+      height: window.innerHeight,
+      offsetTop: 0,
+    });
+    window.visualViewport?.dispatchEvent(new Event("resize"));
+  });
+  await expect(page.locator("#composer")).toHaveCSS("bottom", "0px");
+});

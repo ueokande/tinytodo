@@ -1,5 +1,6 @@
 import { createItem, type Todo, toggle } from "./domain/todo.ts";
 import { read, write } from "./storage/todo-storage.ts";
+import { positionComposer } from "./ui/composer.ts";
 import layout from "./ui/layout.html?raw";
 import { createToast } from "./ui/toast.ts";
 import { createTodoRow } from "./ui/todo-row.ts";
@@ -12,6 +13,7 @@ export function mountApp(root: HTMLElement) {
     if (!element) throw new Error(`Missing element: ${id}`);
     return element as T;
   };
+  positionComposer($("composer"));
   let storageAvailable = true;
   try {
     items = read(localStorage);
@@ -69,7 +71,7 @@ export function mountApp(root: HTMLElement) {
     const item = createItem($<HTMLInputElement>("title").value);
     if (item && commit([...items, item])) {
       $<HTMLInputElement>("title").value = "";
-      $<HTMLInputElement>("title").focus();
+      $<HTMLInputElement>("title").focus({ preventScroll: true });
     }
   };
   $("fold").onclick = () => {

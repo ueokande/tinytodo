@@ -4,6 +4,13 @@
   color: #24352b;
   background: #f7f8f6;
   font-synthesis: none;
+  --composer-height: 90px;
+  --viewport-bottom: 0px;
+  scroll-padding-bottom: calc(
+    var(--composer-height) +
+    var(--viewport-bottom) +
+    16px
+  );
 }
 * {
   box-sizing: border-box;
@@ -32,7 +39,7 @@ button {
 main {
   max-width: 640px;
   margin: auto;
-  padding: 0 20px 32px;
+  padding: 0 20px calc(var(--composer-height) + var(--viewport-bottom) + 16px);
 }
 header {
   display: flex;
@@ -56,6 +63,17 @@ h1 {
   border-radius: 12px;
 }
 
+.composer {
+  position: fixed;
+  bottom: var(--viewport-bottom);
+  left: 0;
+  right: 0;
+  z-index: 1;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+  background: #f7f8f6;
+  border-top: 1px solid #e5ebe6;
+}
+
 form {
   display: flex;
   align-items: center;
@@ -64,7 +82,8 @@ form {
   border: 1px solid #cddbd1;
   border-radius: 8px;
   padding: 4px 5px 4px 14px;
-  margin-bottom: 16px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 form:focus-within {
   outline: 2px solid #9cbcaa;
@@ -89,9 +108,11 @@ input::placeholder {
   background: #426a50;
   color: #fff;
   min-height: 44px;
-  padding: 0 15px;
+  width: 44px;
+  flex-shrink: 0;
+  padding: 0;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 24px;
 }
 
 .items {
@@ -194,7 +215,7 @@ input::placeholder {
 
 #toast {
   position: fixed;
-  bottom: calc(20px + env(safe-area-inset-bottom));
+  bottom: calc(var(--viewport-bottom) + var(--composer-height) + 12px);
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
