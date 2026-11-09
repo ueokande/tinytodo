@@ -1,4 +1,4 @@
-.board-sheet {
+.sheet {
   position: fixed;
   top: auto;
   bottom: var(--viewport-bottom);
@@ -13,10 +13,10 @@
   background: #f7f8f6;
   color: inherit;
 }
-.board-sheet::backdrop {
+.sheet::backdrop {
   background: #182b2255;
 }
-.sheet-handle {
+.handle {
   width: 32px;
   height: 24px;
   border-radius: 4px;
@@ -26,29 +26,29 @@
   margin: 0 auto;
   touch-action: none;
 }
-.sheet-toolbar {
+.toolbar {
   display: flex;
   justify-content: space-between;
   touch-action: none;
 }
-.board-sheet button {
+.sheet button {
   min-height: 48px;
   background: transparent;
   color: inherit;
   padding: 8px 12px;
 }
-#board-close {
+.close {
   margin-left: auto;
   font-size: 24px;
 }
-#board-back {
+.back {
   font-size: 22px;
 }
-.board-row {
+.row {
   display: flex;
   align-items: center;
 }
-.board-select {
+.select {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -57,46 +57,46 @@
   gap: 16px;
   text-align: left;
 }
-.board-select > span:first-child {
+.select > span:first-child {
   overflow-wrap: anywhere;
 }
-.board-check {
+.check {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
   color: #426a50;
 }
-.board-menu {
+.menu {
   width: 48px;
   flex-shrink: 0;
   font-size: 24px;
 }
-#board-add {
+.add {
   width: 100%;
   border-top: 1px solid #dfe6e0;
   text-align: left;
   margin-top: 12px;
   padding-top: 16px;
 }
-.board-sheet h2 {
+.sheet h2 {
   font-size: 17px;
   font-weight: 600;
   overflow-wrap: anywhere;
   margin: 12px 12px 16px;
 }
-#board-actions > button {
+.actions > button {
   display: block;
   width: 100%;
   text-align: left;
 }
-.board-sheet .danger {
+.sheet .danger {
   color: #a33c37;
 }
-.board-sheet button:disabled {
+.sheet button:disabled {
   opacity: 0.4;
   cursor: default;
 }
-.board-form {
+.form {
   display: grid;
   grid-template-columns: 1fr auto;
   border: 0;
@@ -104,46 +104,84 @@
   padding: 12px;
   gap: 16px;
 }
-.board-form:focus-within {
+.form:focus-within {
   outline: none;
 }
-.board-form label {
+.form label {
   grid-column: 1 / -1;
   font-size: 15px;
 }
-.board-form input {
+.form input {
   border: 1px solid #b7cbbb;
   border-radius: 8px;
   padding: 12px;
   background: white;
 }
-.board-form input:focus {
+.form input:focus {
   outline: 2px solid #9cbcaa;
   outline-offset: 1px;
 }
-#board-save {
+.sheet .save {
   color: #fff;
   background: #426a50;
   border-radius: 8px;
   align-self: center;
 }
-#board-confirm p {
+.confirm p {
   font-size: 14px;
   line-height: 1.7;
   margin: 12px;
 }
-.confirm-buttons {
+.confirmButtons {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
 }
 
-#board-error {
+.error {
   color: #a33c37;
   font-size: 13px;
   margin: 12px;
 }
 
-.board-sheet.is-closing {
+.sheet.closing {
   pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .check svg {
+    animation: checkIn 180ms ease;
+  }
+  .sheet[open]::backdrop {
+    animation: backdropIn 220ms ease both;
+  }
+  .sheet.closing::backdrop {
+    animation: backdropOut 160ms ease both;
+  }
+}
+@keyframes backdropIn {
+  from {
+    background: #182b2200;
+  }
+  to {
+    background: #182b2255;
+  }
+}
+@keyframes backdropOut {
+  from {
+    background: #182b2255;
+  }
+  to {
+    background: #182b2200;
+  }
+}
+@keyframes checkIn {
+  from {
+    opacity: 0;
+    scale: 0.7;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
 }

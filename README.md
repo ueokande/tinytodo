@@ -49,20 +49,23 @@ E2Eはタスク操作、保存、オフライン動作、下部入力欄、旧�
 
 ## コード構造
 
-- `src/domain/todo.ts`: ToDoの型、タイトル検証、完了の切り替え（DOMや保存先に依存しない）
-- `src/domain/board.ts`: ボードの型、追加・名前変更・削除と名前検証
-- `src/storage/board-storage.ts`: ボードと選択状態の保存、旧データ移行と検証
-- `src/storage/todo-storage.ts`: 旧リストの読み込みと項目の検証
-- `src/ui/`: HTMLレイアウト、スワイプ可能な行、通知と取り消し、キーボード表示時の入力欄位置調整
-- `src/app.ts`: 保存成功後に状態を反映する処理、ユーザー操作と各モジュールの接続
-- `src/ui/todo-list.ts`: リストの描画・折りたたみと、更新前後のアニメーション
-- `src/ui/dom.ts`: HTML要素の存在と型を検証する共通取得処理
-- `src/ui/board-sheet.css`, `src/ui/motion.css`: ボードパネルとアニメーションのスタイル
-- `src/main.ts`: 起動処理
-- `scripts/build-sw.ts`: ビルド成果物からオフライン用Service Workerを生成
-- `tests/`, `e2e/`: ロジック・保存の単体テストと実ブラウザテスト
+ReactとTypeScriptでUIを構築しています。グローバルCSSはリセットと共通の基本設定だけにし、コンポーネントの見た目は隣接する `*.module.css` に閉じています。
 
-TypeScriptはstrictモードです。`pnpm check` でBiomeのlintとフォーマットを確認し、`pnpm format` で修正できます。依存関係は `pnpm-lock.yaml` に固定し、npmのロックファイルは使用しません。
+- `src/App.tsx`: ボード・タスク操作、ボード別の入力途中の文字、コンポーネントの接続
+- `src/components/`: ボードパネル、ToDo一覧・行、下部入力欄、通知のReactコンポーネントとCSS Modules
+- `src/hooks/useBoards.ts`: Reactの状態と端末内保存の接続。保存成功後だけ状態を反映し、連続更新・保存失敗・旧データ移行に対応
+- `src/hooks/useToast.ts`: 通知、取り消し、タイマーの状態と後始末
+- `src/domain/`: Reactや保存先に依存しない型・検証・ボードとToDoの操作
+- `src/storage/`: 保存形式の検証と旧データ移行
+- `src/ui/`: Web Animations APIとキーボード表示領域に関するブラウザAPIの薄い補助処理。ReactのEffectで登録・解除
+- `src/main.tsx`: Reactの起動。開発時はStrictModeを有効化
+- `scripts/build-sw.ts`: 本番ビルドからService Workerを生成
+- `tests/`: Vitestによるドメイン・保存・React Hookテスト。HookはReact Testing LibraryとjsdomでStrictMode下の動作を検証
+- `e2e/`: PlaywrightによるPWA・スワイプ・画面遷移・オフラインの実ブラウザテスト
+
+`pnpm test` はVitestの全テストを実行し、`pnpm test:watch` で監視モードになります。Vitestは `tests/` のみを対象にし、PlaywrightのE2Eは `pnpm test:e2e` で実行します。CIも同じコマンドを使用します。
+
+TypeScriptはstrictモードです。`pnpm check` でBiomeのlintとフォーマットを確認し、`pnpm format` で修正できます。依存関係は `pnpm-lock.yaml` に固定しています。
 
 このクラウド環境ではホームディレクトリが書き込み不可のため、コマンド実行時に次を設定します。通常のローカル環境では不要です。
 
@@ -74,12 +77,12 @@ pnpm install --frozen-lockfile --store-dir /workspace/.pnpm-store
 
 ## アニメーション
 
-UIライブラリは追加せず、Web Animations APIとCSSを使用しています。既存の素のTypeScript・DOM構成で必要な開閉・行移動を扱えるため、フレームワークや追加のランタイム依存を持たない構成を選びました。
+Reactの描画に合わせてWeb Animations APIとCSS Modulesで動きを付けています。アニメーション専用ライブラリは追加していません。
 
 - パネル開閉・ドラッグ・戻り: `sheet-motion.ts`
 - タスクの追加・完了・削除と行の詰め直し: `list-motion.ts`
 - 共通の時間・イージングと動きの抑制: `motion.ts`
-- 通知の出入り: `toast.ts`
+- 通知の状態・出入り: `useToast.ts` と `Toast.tsx`
 
 動きは160〜260msを基本に、transformとopacityを中心にしています。OSの `prefers-reduced-motion` に従って動きを省略し、保存の成否や状態更新はアニメーションの終了に依存させません。パネルは終了までモーダルを維持し、閉じた後にボード切り替えボタンへフォーカスを戻します。連続Escape・再表示・ドラッグ・動きの抑制・連続完了と取り消しをブラウザテストで確認しています。Android実機のジェスチャー・キーボード挙動は別途確認が必要です。
 

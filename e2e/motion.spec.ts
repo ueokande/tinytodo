@@ -4,8 +4,9 @@ test("sheet animates both ways, restores focus, and can reopen after interrupted
   page,
 }) => {
   await page.goto("./");
-  const started = await page.evaluate(() => {
+  const started = await page.evaluate(async () => {
     document.getElementById("board-switch")?.click();
+    await new Promise(requestAnimationFrame);
     const dialog = document.querySelector("dialog");
     return { open: dialog?.open, animations: dialog?.getAnimations().length };
   });
@@ -18,7 +19,7 @@ test("sheet animates both ways, restores focus, and can reopen after interrupted
   await page.locator("#board-switch").click();
   const exiting = await page.evaluate(() => {
     document.getElementById("board-close")?.click();
-    return document.querySelector("dialog")?.open;
+    return Boolean(document.querySelector("dialog")?.open);
   });
   expect(exiting).toBe(true);
   await expect(page.getByRole("dialog")).toBeHidden();
@@ -38,7 +39,7 @@ test("drag handle snaps back for a short pull and dismisses for a long pull", as
       el.getAnimations().map((animation) => animation.finished),
     );
   });
-  const handle = await page.locator(".sheet-handle").boundingBox();
+  const handle = await page.locator("[data-sheet-drag=handle]").boundingBox();
   if (!handle) throw new Error("Handle not visible");
   const x = handle.x + handle.width / 2,
     y = handle.y + handle.height / 2;
@@ -66,8 +67,9 @@ test("reduced motion skips movement and modal exit remains immediately usable", 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("./");
   expect(
-    await page.evaluate(() => {
+    await page.evaluate(async () => {
       document.getElementById("board-switch")?.click();
+      await new Promise(requestAnimationFrame);
       return document.querySelector("dialog")?.getAnimations({ subtree: true })
         .length;
     }),
@@ -75,7 +77,7 @@ test("reduced motion skips movement and modal exit remains immediately usable", 
   expect(
     await page.evaluate(() => {
       document.getElementById("board-close")?.click();
-      return document.querySelector("dialog")?.open;
+      return Boolean(document.querySelector("dialog")?.open);
     }),
   ).toBe(false);
   await page.getByLabel("新しい項目のタイトル").fill("牛乳");
@@ -87,7 +89,9 @@ test("reduced motion skips movement and modal exit remains immediately usable", 
   ).toBe(0);
   await page.getByRole("button", { name: "牛乳を完了にする" }).click();
   await page.getByRole("button", { name: "元に戻す" }).click();
-  await expect(page.locator("#active .item-title")).toHaveText("牛乳");
+  await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
+    "牛乳",
+  );
 });
 
 test("rapid completion and undo persist without leaving animation overlays", async ({
@@ -101,10 +105,14 @@ test("rapid completion and undo persist without leaving animation overlays", asy
     await page.getByRole("button", { name: "元に戻す" }).click();
   }
   await page.reload();
-  await expect(page.locator("#active .item-title")).toHaveText("パン");
+  await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
+    "パン",
+  );
   await page.getByRole("button", { name: "パンを完了にする" }).click();
   await page.getByRole("button", { name: "まとめて削除" }).click();
-  await expect(page.locator("body > .swipe-row")).toHaveCount(0);
+  await expect(page.locator("[data-testid=todo-ghost]")).toHaveCount(0);
   await page.getByRole("button", { name: "元に戻す" }).click();
-  await expect(page.locator("#done .item-title")).toHaveText("パン");
+  await expect(page.locator("#done [data-testid=todo-title]")).toHaveText(
+    "パン",
+  );
 });

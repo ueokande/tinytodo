@@ -1,0 +1,48 @@
+.main {
+  max-width: 640px;
+  margin: auto;
+  padding: 0 20px calc(var(--composer-height) + var(--viewport-bottom) + 16px);
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0 20px;
+}
+.heading {
+  font-size: 21px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 650;
+  min-width: 0;
+}
+.count {
+  color: #5d7364;
+  font-size: 12px;
+  background: #e5ece7;
+  padding: 4px 9px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.boardSwitch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.boardName {
+  overflow-wrap: anywhere;
+}
+@media (min-width: 700px) {
+  .main {
+    padding-top: 24px;
+  }
+}

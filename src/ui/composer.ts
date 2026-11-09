@@ -1,5 +1,5 @@
 /** Keep the composer above keyboards that resize only the visual viewport. */
-export function positionComposer(composer: HTMLElement): void {
+export function positionComposer(composer: HTMLElement): () => void {
   const viewport = window.visualViewport;
   const style = document.documentElement.style;
   const updatePosition = () => {
@@ -17,7 +17,14 @@ export function positionComposer(composer: HTMLElement): void {
   viewport?.addEventListener("resize", updatePosition);
   viewport?.addEventListener("scroll", updatePosition);
   window.addEventListener("resize", updatePosition);
-  new ResizeObserver(updateHeight).observe(composer);
+  const observer = new ResizeObserver(updateHeight);
+  observer.observe(composer);
   updatePosition();
   updateHeight();
+  return () => {
+    viewport?.removeEventListener("resize", updatePosition);
+    viewport?.removeEventListener("scroll", updatePosition);
+    window.removeEventListener("resize", updatePosition);
+    observer.disconnect();
+  };
 }

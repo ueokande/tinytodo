@@ -29,7 +29,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Lint and formatting
         run: pnpm check
-      - name: Unit tests
+      - name: Vitest unit and React hook tests
         run: pnpm test
       - name: Install browser
         run: pnpm exec playwright install --with-deps chromium

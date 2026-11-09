@@ -7,7 +7,7 @@ export function captureListMotion(container: HTMLElement): () => void {
     Array.from(container.querySelectorAll<HTMLElement>("[data-todo-id]")).map(
       (row) => [
         row.dataset.todoId,
-        { row, bounds: row.getBoundingClientRect() },
+        { row, done: row.dataset.done, bounds: row.getBoundingClientRect() },
       ],
     ),
   );
@@ -18,12 +18,9 @@ export function captureListMotion(container: HTMLElement): () => void {
       const old = previous.get(row.dataset.todoId);
       const bounds = row.getBoundingClientRect();
       if (bounds.height === 0) continue;
-      const completionChanged =
-        old &&
-        Boolean(old.row.querySelector(".is-done")) !==
-          Boolean(row.querySelector(".is-done"));
-      if (completionChanged && row.querySelector(".is-done"))
-        row.classList.add("just-completed");
+      const completionChanged = old && old.done !== row.dataset.done;
+      if (completionChanged && row.dataset.done === "true")
+        row.dataset.completedAnimation = "true";
       if (!old || old.bounds.height === 0 || completionChanged) {
         enter(row);
       } else {
@@ -49,6 +46,7 @@ export function captureListMotion(container: HTMLElement): () => void {
         continue;
       const ghost = row.cloneNode(true) as HTMLElement;
       ghost.removeAttribute("data-todo-id");
+      ghost.dataset.testid = "todo-ghost";
       ghost.setAttribute("aria-hidden", "true");
       ghost.inert = true;
       Object.assign(ghost.style, {

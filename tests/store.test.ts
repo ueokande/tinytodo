@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import { test } from "node:test";
+import { assert, test } from "vitest";
 import { createItem, toggle } from "../src/domain/todo.ts";
 import { read, write } from "../src/storage/todo-storage.ts";
 

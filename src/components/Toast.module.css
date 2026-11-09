@@ -1,0 +1,22 @@
+.toast {
+  position: fixed;
+  bottom: calc(var(--viewport-bottom) + var(--composer-height) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 24px);
+  padding: 8px 16px;
+  background: #2c4736;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 13px;
+  box-shadow: 0 4px 20px #0002;
+  z-index: 2;
+}
+.undo {
+  background: transparent;
+  color: #d9edd8;
+  min-height: 44px;
+  padding: 0 0 0 12px;
+  font-size: 13px;
+}

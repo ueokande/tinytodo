@@ -1,7 +1,11 @@
 import { animate, motion } from "./motion.ts";
 
 /** Dialog stays modal during exit; Escape/backdrop/button/drag share one close path. */
-export function createSheetMotion(dialog: HTMLDialogElement) {
+export function createSheetMotion(
+  dialog: HTMLDialogElement,
+  closingClass: string,
+) {
+  const controller = new AbortController();
   let animation: Animation | null = null;
   let closing = false;
   let revision = 0;
@@ -19,7 +23,7 @@ export function createSheetMotion(dialog: HTMLDialogElement) {
     if (drag && dialog.hasPointerCapture(drag.id))
       dialog.releasePointerCapture(drag.id);
     drag = null;
-    dialog.classList.add("is-closing");
+    dialog.classList.add(closingClass);
     const from = getComputedStyle(dialog).transform;
     const exit = run(
       [{ transform: from }, { transform: "translateY(100%)" }],
@@ -29,50 +33,66 @@ export function createSheetMotion(dialog: HTMLDialogElement) {
       if (revision !== closingRevision || !closing) return;
       dialog.style.transform = "";
       dialog.close();
-      dialog.classList.remove("is-closing");
+      dialog.classList.remove(closingClass);
       closing = false;
     };
     if (exit) void exit.finished.then(finish, finish);
     else finish();
   }
   // Native Back/Escape can close a dialog independently of an in-flight exit.
-  dialog.addEventListener("close", () => {
-    if (dialog.open) return;
-    revision++;
-    animation?.cancel();
-    closing = false;
-    drag = null;
-    dialog.style.transform = "";
-    dialog.classList.remove("is-closing");
-  });
-  dialog.addEventListener("cancel", (event) => {
-    event.preventDefault();
-    close();
-  });
-  dialog.addEventListener("pointerdown", (event) => {
-    if (
-      closing ||
-      !event.isPrimary ||
-      event.button !== 0 ||
-      !(event.target instanceof Element) ||
-      !event.target.closest(".sheet-handle, .sheet-toolbar") ||
-      event.target.closest("button")
-    )
-      return;
-    animation?.cancel();
-    drag = {
-      id: event.pointerId,
-      y: event.clientY,
-      time: performance.now(),
-      distance: 0,
-    };
-    dialog.setPointerCapture(event.pointerId);
-  });
-  dialog.addEventListener("pointermove", (event) => {
-    if (!drag || drag.id !== event.pointerId) return;
-    drag.distance = Math.max(0, event.clientY - drag.y);
-    dialog.style.transform = `translateY(${drag.distance}px)`;
-  });
+  dialog.addEventListener(
+    "close",
+    () => {
+      if (dialog.open) return;
+      revision++;
+      animation?.cancel();
+      closing = false;
+      drag = null;
+      dialog.style.transform = "";
+      dialog.classList.remove(closingClass);
+    },
+    { signal: controller.signal },
+  );
+  dialog.addEventListener(
+    "cancel",
+    (event) => {
+      event.preventDefault();
+      close();
+    },
+    { signal: controller.signal },
+  );
+  dialog.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (
+        closing ||
+        !event.isPrimary ||
+        event.button !== 0 ||
+        !(event.target instanceof Element) ||
+        !event.target.closest("[data-sheet-drag]") ||
+        event.target.closest("button")
+      )
+        return;
+      animation?.cancel();
+      drag = {
+        id: event.pointerId,
+        y: event.clientY,
+        time: performance.now(),
+        distance: 0,
+      };
+      dialog.setPointerCapture(event.pointerId);
+    },
+    { signal: controller.signal },
+  );
+  dialog.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!drag || drag.id !== event.pointerId) return;
+      drag.distance = Math.max(0, event.clientY - drag.y);
+      dialog.style.transform = `translateY(${drag.distance}px)`;
+    },
+    { signal: controller.signal },
+  );
   function endDrag(event: PointerEvent) {
     if (!drag || drag.id !== event.pointerId) return;
     const { distance, time } = drag;
@@ -97,15 +117,24 @@ export function createSheetMotion(dialog: HTMLDialogElement) {
       dialog.style.transform = "";
     }
   }
-  dialog.addEventListener("pointerup", endDrag);
-  dialog.addEventListener("pointercancel", endDrag);
+  dialog.addEventListener("pointerup", endDrag, { signal: controller.signal });
+  dialog.addEventListener("pointercancel", endDrag, {
+    signal: controller.signal,
+  });
   return {
     close,
+    dispose() {
+      controller.abort();
+      revision++;
+      animation?.cancel();
+      dialog.style.transform = "";
+      dialog.classList.remove(closingClass);
+    },
     open() {
       if (dialog.open) return;
       revision++;
       closing = false;
-      dialog.classList.remove("is-closing");
+      dialog.classList.remove(closingClass);
       dialog.showModal();
       run(
         [{ transform: "translateY(100%)" }, { transform: "translateY(0)" }],
