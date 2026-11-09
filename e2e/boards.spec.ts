@@ -3,75 +3,79 @@ import { expect, type Page, test } from "@playwright/test";
 const open = (page: Page) => page.locator("#board-switch").click();
 async function addBoard(page: Page, name: string) {
   await open(page);
-  await page
-    .getByRole("button", { name: "＋ ボードを追加", exact: true })
-    .click();
-  await page.getByLabel("新しいボード", { exact: true }).fill(name);
-  await page.getByRole("button", { name: "作成", exact: true }).click();
+  await page.getByRole("button", { name: "+ Add board", exact: true }).click();
+  await page.getByLabel("New board", { exact: true }).fill(name);
+  await page.getByRole("button", { name: "Create", exact: true }).click();
 }
 async function addTask(page: Page, title: string) {
   await expect(page.getByRole("dialog")).toBeHidden();
-  await page.getByLabel("新しい項目のタイトル").fill(title);
-  await page.getByRole("button", { name: "項目を追加" }).click();
+  await page.getByLabel("New task title").fill(title);
+  await page.getByRole("button", { name: "Add task" }).click();
 }
 test("switch, rename, restore selection and delete boards without mixing tasks", async ({
   page,
 }) => {
   await page.goto("./");
-  await addTask(page, "牛乳");
-  await page.getByLabel("新しい項目のタイトル").fill("買い物の下書き");
-  await addBoard(page, "メモ");
-  await expect(page.locator("#board-name")).toHaveText("メモ");
+  await addTask(page, "Milk");
+  await page.getByLabel("New task title").fill("Shopping draft");
+  await addBoard(page, "Notes");
+  await expect(page.locator("#board-name")).toHaveText("Notes");
   await expect(page.locator("#active [data-testid=todo-content]")).toHaveCount(
     0,
   );
-  await expect(page.getByLabel("新しい項目のタイトル")).toHaveValue("");
-  await addTask(page, "予約する");
-  await page.getByRole("button", { name: "予約するを完了にする" }).click();
-  await page.getByRole("button", { name: "元に戻す" }).click();
+  await expect(page.getByLabel("New task title")).toHaveValue("");
+  await addTask(page, "Book appointment");
+  await page
+    .getByRole("button", { name: "Mark Book appointment as complete" })
+    .click();
+  await page.getByRole("button", { name: "Undo" }).click();
   await open(page);
   await page
-    .getByRole("button", { name: "マイリストに切り替え", exact: true })
+    .getByRole("button", { name: "Switch to My list", exact: true })
     .click();
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "牛乳",
+    "Milk",
   );
-  await expect(page.getByLabel("新しい項目のタイトル")).toHaveValue(
-    "買い物の下書き",
-  );
-  await open(page);
-  await page.getByRole("button", { name: "メモの操作", exact: true }).click();
-  await page.getByRole("button", { name: "名前を変更", exact: true }).click();
-  await page.getByLabel("ボード名を変更", { exact: true }).fill("旅行");
-  await page.getByRole("button", { name: "保存", exact: true }).click();
-  await expect(page.locator("#board-name")).toHaveText("マイリスト");
+  await expect(page.getByLabel("New task title")).toHaveValue("Shopping draft");
   await open(page);
   await page
-    .getByRole("button", { name: "旅行に切り替え", exact: true })
+    .getByRole("button", { name: "Options for Notes", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Rename", exact: true }).click();
+  await page.getByLabel("Rename board", { exact: true }).fill("Travel");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.locator("#board-name")).toHaveText("My list");
+  await open(page);
+  await page
+    .getByRole("button", { name: "Switch to Travel", exact: true })
     .click();
   await page.reload();
-  await expect(page.locator("#board-name")).toHaveText("旅行");
+  await expect(page.locator("#board-name")).toHaveText("Travel");
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "予約する",
-  );
-  await open(page);
-  await page.getByRole("button", { name: "旅行の操作", exact: true }).click();
-  await page.getByRole("button", { name: "削除", exact: true }).click();
-  await expect(page.locator("#board-delete-detail")).toContainText("1件");
-  await page.getByRole("button", { name: "キャンセル", exact: true }).click();
-  await page.getByRole("button", { name: "旅行の操作", exact: true }).click();
-  await page.getByRole("button", { name: "削除", exact: true }).click();
-  await page.getByRole("button", { name: "削除する", exact: true }).click();
-  await expect(page.locator("#board-name")).toHaveText("マイリスト");
-  await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "牛乳",
+    "Book appointment",
   );
   await open(page);
   await page
-    .getByRole("button", { name: "マイリストの操作", exact: true })
+    .getByRole("button", { name: "Options for Travel", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(page.locator("#board-delete-detail")).toContainText("1 task");
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Options for Travel", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await page.getByRole("button", { name: "Delete board", exact: true }).click();
+  await expect(page.locator("#board-name")).toHaveText("My list");
+  await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
+    "Milk",
+  );
+  await open(page);
+  await page
+    .getByRole("button", { name: "Options for My list", exact: true })
     .click();
   await expect(
-    page.getByRole("button", { name: "削除", exact: true }),
+    page.getByRole("button", { name: "Delete", exact: true }),
   ).toBeDisabled();
 });
 test("sheet closes with Escape and backdrop, rejects duplicate names, and works offline", async ({
@@ -87,11 +91,9 @@ test("sheet closes with Escape and backdrop, rejects duplicate names, and works 
   await page.mouse.click(5, 5);
   await expect(page.getByRole("dialog")).toBeHidden();
   await open(page);
-  await page
-    .getByRole("button", { name: "＋ ボードを追加", exact: true })
-    .click();
-  await page.getByLabel("新しいボード", { exact: true }).fill("マイリスト");
-  await page.getByRole("button", { name: "作成", exact: true }).click();
+  await page.getByRole("button", { name: "+ Add board", exact: true }).click();
+  await page.getByLabel("New board", { exact: true }).fill("My list");
+  await page.getByRole("button", { name: "Create", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   expect(
     await page
@@ -105,12 +107,12 @@ test("sheet closes with Escape and backdrop, rejects duplicate names, and works 
   await page.reload();
   await page.waitForFunction(() => !!navigator.serviceWorker.controller);
   await context.setOffline(true);
-  await addBoard(page, "オフライン");
-  await addTask(page, "電池");
+  await addBoard(page, "Offline");
+  await addTask(page, "Batteries");
   await page.reload();
-  await expect(page.locator("#board-name")).toHaveText("オフライン");
+  await expect(page.locator("#board-name")).toHaveText("Offline");
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "電池",
+    "Batteries",
   );
   await open(page);
   await page.screenshot({
@@ -128,8 +130,8 @@ test("failed storage write keeps the sheet open and shows an error", async ({
       throw new DOMException("Quota exceeded", "QuotaExceededError");
     };
   });
-  await addBoard(page, "保存失敗");
+  await addBoard(page, "Save failure");
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(page.locator("#board-error")).toBeVisible();
-  await expect(page.locator("#board-name")).toHaveText("マイリスト");
+  await expect(page.locator("#board-name")).toHaveText("My list");
 });

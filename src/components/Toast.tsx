@@ -63,7 +63,7 @@ export function Toast({
           notice?.undo?.();
         }}
       >
-        元に戻す
+        Undo
       </button>
     </div>
   );

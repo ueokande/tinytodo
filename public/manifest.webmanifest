@@ -1,7 +1,7 @@
 {
-  "name": "tiny — 小さなリスト",
+  "name": "tiny — Simple to-do lists",
   "short_name": "tiny",
-  "lang": "ja",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

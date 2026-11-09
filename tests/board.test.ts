@@ -25,28 +25,28 @@ function memory() {
 }
 test("migrate legacy titles and completion without changing the original data", () => {
   const storage = memory();
-  const old = JSON.stringify([{ id: "milk", title: "牛乳", done: true }]);
+  const old = JSON.stringify([{ id: "milk", title: "Milk", done: true }]);
   storage.setItem(KEY, old);
   const state = readBoards(storage);
-  assert.equal(selectedBoard(state).name, "マイリスト");
+  assert.equal(selectedBoard(state).name, "My list");
   assert.equal(selectedBoard(state).items[0].done, true);
   writeBoards(storage, state);
   assert.deepEqual(readBoards(storage), state);
   assert.equal(storage.getItem(KEY), old);
 });
 test("boards are independent, names validated, selection retained, and last board protected", () => {
-  const original = initialState([{ id: "milk", title: "牛乳", done: false }]);
-  const next = addBoard(original, " メモ ");
-  assert.equal(selectedBoard(next).name, "メモ");
+  const original = initialState([{ id: "milk", title: "Milk", done: false }]);
+  const next = addBoard(original, " Notes ");
+  assert.equal(selectedBoard(next).name, "Notes");
   assert.equal(selectedBoard(next).items.length, 0);
   assert.equal(next.boards[0].items.length, 1);
-  assert.throws(() => addBoard(next, "メモ"));
+  assert.throws(() => addBoard(next, "Notes"));
   assert.throws(() => addBoard(next, " "));
   assert.throws(() => renameBoard(next, next.selectedBoardId, "a".repeat(41)));
-  const renamed = renameBoard(next, next.selectedBoardId, "旅行");
+  const renamed = renameBoard(next, next.selectedBoardId, "Travel");
   const storage = memory();
   writeBoards(storage, renamed);
-  assert.equal(selectedBoard(readBoards(storage)).name, "旅行");
+  assert.equal(selectedBoard(readBoards(storage)).name, "Travel");
   const removed = deleteBoard(renamed, renamed.selectedBoardId);
   assert.equal(selectedBoard(removed).id, original.selectedBoardId);
   assert.throws(() => deleteBoard(removed, removed.selectedBoardId));
@@ -75,7 +75,7 @@ test("a failed save preserves the last persisted boards", () => {
           throw new Error("quota");
         },
       },
-      addBoard(state, "メモ"),
+      addBoard(state, "Notes"),
     ),
   );
   assert.deepEqual(readBoards(storage), state);
@@ -83,8 +83,8 @@ test("a failed save preserves the last persisted boards", () => {
 
 test("updating one board preserves the other boards and selection", () => {
   const first = initialState();
-  const state = addBoard(first, "メモ");
-  const items = [{ id: "milk", title: "牛乳", done: false }];
+  const state = addBoard(first, "Notes");
+  const items = [{ id: "milk", title: "Milk", done: false }];
   const next = updateBoardItems(state, first.selectedBoardId, items);
   assert.deepEqual(next.boards[0].items, items);
   assert.strictEqual(next.boards[1], state.boards[1]);

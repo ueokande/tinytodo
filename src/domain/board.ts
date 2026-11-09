@@ -11,7 +11,7 @@ export interface BoardState {
 }
 export const MAX_BOARD_NAME_LENGTH = 40;
 export function initialState(items: Todo[] = []): BoardState {
-  const board = { id: crypto.randomUUID(), name: "マイリスト", items };
+  const board = { id: crypto.randomUUID(), name: "My list", items };
   return { version: 2, boards: [board], selectedBoardId: board.id };
 }
 export function selectedBoard(state: BoardState): Board {

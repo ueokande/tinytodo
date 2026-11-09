@@ -25,14 +25,14 @@ export function TaskComposer({ value, onChange, onAdd }: Props) {
           ref={input}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          aria-label="新しい項目のタイトル"
-          placeholder="追加"
+          aria-label="New task title"
+          placeholder="Add a task"
           maxLength={200}
           autoComplete="off"
           enterKeyHint="done"
           required
         />
-        <button type="submit" className={styles.add} aria-label="項目を追加">
+        <button type="submit" className={styles.add} aria-label="Add task">
           <span aria-hidden="true">↑</span>
         </button>
       </form>

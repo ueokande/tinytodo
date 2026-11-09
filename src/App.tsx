@@ -30,7 +30,7 @@ export function App() {
         .register(`${import.meta.env.BASE_URL}sw.js`)
         .catch(() =>
           notify(
-            "オフラインの準備ができませんでした。オンラインで再読み込みしてください。",
+            "Offline setup failed. Reload while connected to the internet.",
           ),
         );
   }, [notify]);
@@ -103,13 +103,13 @@ export function App() {
             if (item)
               commit(
                 (items) => toggle(items, id),
-                item.done ? "未完了に戻しました" : "完了しました",
+                item.done ? "Task restored" : "Task completed",
               );
           }}
           onClear={() =>
             commit(
               (items) => items.filter((item) => !item.done),
-              "完了した項目を削除しました",
+              "Completed tasks cleared",
             )
           }
         />

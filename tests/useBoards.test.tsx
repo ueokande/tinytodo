@@ -28,21 +28,23 @@ test("React state migrates old data and accumulates batched updates in StrictMod
   const storage = memory();
   storage.setItem(
     KEY,
-    JSON.stringify([{ id: "milk", title: "牛乳", done: false }]),
+    JSON.stringify([{ id: "milk", title: "Milk", done: false }]),
   );
   const { result } = renderHook(() => useBoards(storage), { wrapper });
-  expect(selectedBoard(result.current.state).items[0].title).toBe("牛乳");
+  expect(selectedBoard(result.current.state).items[0].title).toBe("Milk");
   act(() => {
-    result.current.save((previous) => addBoard(previous, "メモ"));
+    result.current.save((previous) => addBoard(previous, "Notes"));
     result.current.save((previous) =>
       updateBoardItems(previous, previous.selectedBoardId, [
-        { id: "note", title: "予約", done: false },
+        { id: "note", title: "Appointment", done: false },
       ]),
     );
   });
   expect(result.current.state.boards).toHaveLength(2);
-  expect(selectedBoard(result.current.state).name).toBe("メモ");
-  expect(selectedBoard(result.current.state).items[0].title).toBe("予約");
+  expect(selectedBoard(result.current.state).name).toBe("Notes");
+  expect(selectedBoard(result.current.state).items[0].title).toBe(
+    "Appointment",
+  );
   expect(JSON.parse(storage.getItem(BOARD_KEY) ?? "null")).toEqual(
     result.current.state,
   );
@@ -55,15 +57,17 @@ test("failed writes preserve rendered state and corrupt data cannot be overwritt
     throw new Error("quota");
   };
   act(() => {
-    expect(result.current.save((state) => addBoard(state, "メモ"))).toBe(false);
+    expect(result.current.save((state) => addBoard(state, "Notes"))).toBe(
+      false,
+    );
   });
   expect(result.current.state).toBe(previous);
-  expect(result.current.error).toContain("保存できません");
+  expect(result.current.error).toContain("Unable to save");
   const corrupt = memory();
   corrupt.setItem(BOARD_KEY, "broken");
   const { result: blocked } = renderHook(() => useBoards(corrupt), { wrapper });
   act(() => {
-    expect(blocked.current.save((state) => addBoard(state, "新規"))).toBe(
+    expect(blocked.current.save((state) => addBoard(state, "New board"))).toBe(
       false,
     );
   });

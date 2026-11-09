@@ -99,7 +99,7 @@ export function TodoRow({
           type="button"
           className={styles.check}
           onClick={() => onToggle(item.id)}
-          aria-label={`${item.title}を${item.done ? "未完了に戻す" : "完了にする"}`}
+          aria-label={`Mark ${item.title} as ${item.done ? "incomplete" : "complete"}`}
         >
           {item.done && <CheckIcon />}
         </button>

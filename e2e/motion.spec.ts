@@ -80,17 +80,17 @@ test("reduced motion skips movement and modal exit remains immediately usable", 
       return Boolean(document.querySelector("dialog")?.open);
     }),
   ).toBe(false);
-  await page.getByLabel("新しい項目のタイトル").fill("牛乳");
-  await page.getByRole("button", { name: "項目を追加" }).click();
+  await page.getByLabel("New task title").fill("Milk");
+  await page.getByRole("button", { name: "Add task" }).click();
   expect(
     await page
       .locator("#task-list")
       .evaluate((el) => el.getAnimations({ subtree: true }).length),
   ).toBe(0);
-  await page.getByRole("button", { name: "牛乳を完了にする" }).click();
-  await page.getByRole("button", { name: "元に戻す" }).click();
+  await page.getByRole("button", { name: "Mark Milk as complete" }).click();
+  await page.getByRole("button", { name: "Undo" }).click();
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "牛乳",
+    "Milk",
   );
 });
 
@@ -98,21 +98,21 @@ test("rapid completion and undo persist without leaving animation overlays", asy
   page,
 }) => {
   await page.goto("./");
-  await page.getByLabel("新しい項目のタイトル").fill("パン");
-  await page.getByRole("button", { name: "項目を追加" }).click();
+  await page.getByLabel("New task title").fill("Bread");
+  await page.getByRole("button", { name: "Add task" }).click();
   for (let i = 0; i < 3; i++) {
-    await page.getByRole("button", { name: "パンを完了にする" }).click();
-    await page.getByRole("button", { name: "元に戻す" }).click();
+    await page.getByRole("button", { name: "Mark Bread as complete" }).click();
+    await page.getByRole("button", { name: "Undo" }).click();
   }
   await page.reload();
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "パン",
+    "Bread",
   );
-  await page.getByRole("button", { name: "パンを完了にする" }).click();
-  await page.getByRole("button", { name: "まとめて削除" }).click();
+  await page.getByRole("button", { name: "Mark Bread as complete" }).click();
+  await page.getByRole("button", { name: "Clear completed" }).click();
   await expect(page.locator("[data-testid=todo-ghost]")).toHaveCount(0);
-  await page.getByRole("button", { name: "元に戻す" }).click();
+  await page.getByRole("button", { name: "Undo" }).click();
   await expect(page.locator("#done [data-testid=todo-title]")).toHaveText(
-    "パン",
+    "Bread",
   );
 });

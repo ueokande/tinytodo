@@ -32,7 +32,7 @@ export function TodoList({
   const active = board.items.filter((item) => !item.done),
     done = board.items.filter((item) => item.done);
   return (
-    <section id="task-list" ref={container} aria-label="ToDoリスト">
+    <section id="task-list" ref={container} aria-label="Tasks">
       <div id="active" className={styles.items}>
         {active.map((item) => (
           <TodoRow key={item.id} item={item} onToggle={onToggle} />
@@ -51,7 +51,7 @@ export function TodoList({
               if (folded && doneContainer.current) enter(doneContainer.current);
             }}
           >
-            完了した項目 <span id="done-count">{done.length}</span>{" "}
+            Completed <span id="done-count">{done.length}</span>{" "}
             <span id="chevron" aria-hidden="true">
               {folded ? "⌄" : "⌃"}
             </span>
@@ -62,7 +62,7 @@ export function TodoList({
             className={styles.clear}
             onClick={onClear}
           >
-            まとめて削除
+            Clear completed
           </button>
         </div>
         <div

@@ -69,7 +69,9 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
       sheet.current?.close();
       return;
     }
-    setError("保存できませんでした。保存設定や空き容量をご確認ください。");
+    setError(
+      "Unable to save. Check your storage settings and available space.",
+    );
   };
   const edit = (rename: boolean) => {
     setName(rename ? (board?.name ?? "") : "");
@@ -83,7 +85,7 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
       !validBoardName(state, name, mode.type === "rename" ? mode.id : undefined)
     ) {
       input.current?.setCustomValidity(
-        "1〜40文字の、重複しない名前を入力してください。",
+        "Enter a unique name between 1 and 40 characters.",
       );
       input.current?.reportValidity();
       return;
@@ -99,7 +101,7 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
       id="board-picker"
       ref={dialog}
       className={styles.sheet}
-      aria-label="ボード"
+      aria-label="Boards"
       onClose={onClose}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
@@ -129,7 +131,7 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
           type="button"
           id="board-back"
           className={styles.back}
-          aria-label="戻る"
+          aria-label="Back"
           hidden={mode.type === "list"}
           onClick={() => setMode({ type: "list" })}
         >
@@ -139,7 +141,7 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
           type="button"
           id="board-close"
           className={styles.close}
-          aria-label="閉じる"
+          aria-label="Close"
           onClick={() => sheet.current?.close()}
         >
           ×
@@ -157,7 +159,7 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
                   <button
                     type="button"
                     className={styles.select}
-                    aria-label={`${value.name}に切り替え`}
+                    aria-label={`Switch to ${value.name}`}
                     aria-current={
                       value.id === state.selectedBoardId ? "true" : undefined
                     }
@@ -175,7 +177,7 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
                   <button
                     type="button"
                     className={styles.menu}
-                    aria-label={`${value.name}の操作`}
+                    aria-label={`Options for ${value.name}`}
                     onClick={() => setMode({ type: "actions", id: value.id })}
                   >
                     ⋮
@@ -189,7 +191,7 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
               className={styles.add}
               onClick={() => edit(false)}
             >
-              ＋ ボードを追加
+              + Add board
             </button>
           </div>
         )}
@@ -197,7 +199,7 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
           <section id="board-actions" className={styles.actions}>
             <h2>{board.name}</h2>
             <button type="button" id="board-rename" onClick={() => edit(true)}>
-              名前を変更
+              Rename
             </button>
             <button
               type="button"
@@ -206,19 +208,19 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
               disabled={state.boards.length === 1}
               title={
                 state.boards.length === 1
-                  ? "最後のボードは削除できません"
+                  ? "You cannot delete the last board"
                   : undefined
               }
               onClick={() => setMode({ type: "delete", id: board.id })}
             >
-              削除
+              Delete
             </button>
           </section>
         )}
         {(mode.type === "add" || mode.type === "rename") && (
           <form id="board-form" className={styles.form} onSubmit={submit}>
             <label htmlFor="board-title">
-              {mode.type === "rename" ? "ボード名を変更" : "新しいボード"}
+              {mode.type === "rename" ? "Rename board" : "New board"}
             </label>
             <input
               id="board-title"
@@ -233,16 +235,17 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
               required
             />
             <button type="submit" id="board-save" className={styles.save}>
-              {mode.type === "rename" ? "保存" : "作成"}
+              {mode.type === "rename" ? "Save" : "Create"}
             </button>
           </form>
         )}
         {mode.type === "delete" && board && (
           <section id="board-confirm" className={styles.confirm}>
-            <h2>「{board.name}」を削除しますか？</h2>
+            <h2>Delete “{board.name}”?</h2>
             <p id="board-delete-detail">
               {board.items.length}
-              件の項目も削除されます。この操作は取り消せません。
+              {board.items.length === 1 ? " task" : " tasks"} will also be
+              deleted. This cannot be undone.
             </p>
             <div className={styles.confirmButtons}>
               <button
@@ -250,7 +253,7 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
                 id="board-cancel"
                 onClick={() => setMode({ type: "list" })}
               >
-                キャンセル
+                Cancel
               </button>
               <button
                 type="button"
@@ -258,7 +261,7 @@ export function BoardPicker({ state: currentState, onSave, onClose }: Props) {
                 className={styles.danger}
                 onClick={() => save(deleteBoard(state, board.id))}
               >
-                削除する
+                Delete board
               </button>
             </div>
           </section>

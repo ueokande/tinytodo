@@ -11,8 +11,7 @@ function load(storage?: TodoStorage) {
     return {
       state: initialState(),
       storage: null,
-      error:
-        "保存データを読み込めませんでした。ブラウザの設定をご確認ください。",
+      error: "Unable to load saved data. Check your browser settings.",
     };
   }
 }
@@ -25,7 +24,9 @@ export function useBoards(storage?: TodoStorage) {
   const save = useCallback(
     (next: BoardState | ((previous: BoardState) => BoardState)): boolean => {
       if (!loaded.storage) {
-        setError("保存データを読み込めないため、変更できません。");
+        setError(
+          "Changes are disabled because saved data could not be loaded.",
+        );
         return false;
       }
       const value = typeof next === "function" ? next(current.current) : next;
@@ -33,7 +34,7 @@ export function useBoards(storage?: TodoStorage) {
         writeBoards(loaded.storage, value);
       } catch {
         setError(
-          "保存できません。ブラウザの保存設定や空き容量をご確認ください。",
+          "Unable to save. Check your browser storage settings and available space.",
         );
         return false;
       }

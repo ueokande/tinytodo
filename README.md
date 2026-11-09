@@ -1,103 +1,115 @@
 # tiny
 
-AndroidのChromeからホーム画面に追加できる、小さなToDo PWAです。アカウント登録・API・データベースは不要。項目の情報はタイトルだけです。
+[![CI](https://github.com/ueokande/tinytodo/actions/workflows/ci.yml/badge.svg)](https://github.com/ueokande/tinytodo/actions/workflows/ci.yml)
 
-## 開発
+A minimal, offline-first to-do app for shopping lists and quick notes. Built with React, TypeScript, and CSS Modules, with all list data stored on your device.
 
-Node.js 22.18以降（この環境では24）、pnpm 11.25.0を利用します。
+## Features
+
+- Title-only tasks, organized into multiple boards.
+- Swipe right or tap the circle to complete a task.
+- A bottom input bar for quick, one-handed entry.
+- Undo task completion and clearing completed tasks.
+- Create, rename, and delete boards; remember the last board you opened.
+- Installable PWA with offline access after the first online visit.
+- Short animations that respect reduced-motion preferences.
+- No accounts, analytics, external fonts, or application backend.
+
+## Getting started
+
+Requires **Node.js 22.18+** (24 recommended) and **pnpm 11.25.0**, pinned in `package.json`.
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-## 確認
+Open the URL printed by Vite. Service workers are enabled only in production builds.
+
+## Development
+
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Start the development server |
+| `pnpm check` | Check lint rules and formatting with Biome |
+| `pnpm format` | Apply Biome fixes and formatting |
+| `pnpm typecheck` | Run TypeScript in strict mode |
+| `pnpm test` | Run Vitest unit and React Hook tests |
+| `pnpm test:watch` | Run Vitest in watch mode |
+| `pnpm test:e2e` | Build and run Playwright browser tests |
+| `pnpm build` | Type-check and generate `dist/` |
+| `pnpm preview` | Serve the production build locally |
+
+Install Chromium before running browser tests:
 
 ```sh
-pnpm check
-pnpm typecheck
-pnpm test
+pnpm exec playwright install --with-deps chromium
+pnpm test:e2e
+```
+
+To use an existing Chromium installation, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to its executable path.
+
+Vitest covers domain operations, storage validation, data migration, and React state updates under Strict Mode. Playwright covers task and board operations, persistence, swipe gestures, modal animations, keyboard viewport changes, and offline behavior.
+
+## Install on Android
+
+Open the app in Chrome, then choose **Install app** or **Add to Home screen** from the browser menu. The app needs an online visit to cache its files before it can work offline.
+
+Deployment requires HTTPS static hosting. No application server or database is needed.
+
+## Deployment
+
+```sh
 pnpm build
-PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium pnpm test:e2e
 ```
 
-Chromiumが未インストールの場合は `pnpm exec playwright install chromium` を実行し、`pnpm test:e2e` で実行できます。上のコマンドはこのクラウド環境にインストール済みのChromiumを使います。
-
-E2Eはタスク操作、保存、オフライン動作、下部入力欄、旧データ移行、ボードの切り替え・名前変更・削除・選択復元・保存失敗を確認します。
-
-## Androidで利用
-
-`pnpm build` で生成する `dist/` をHTTPSの静的ホスティングに配置します。ルート以外で公開するときは `VITE_BASE_PATH=/tinytodo/ pnpm build` のように配信パスを指定します。AndroidのChromeで開き、メニューの「ホーム画面に追加」または「アプリをインストール」を選びます。アプリ用サーバーの運用は不要ですが、初回配信には静的ホスティングが必要です。Service Workerは本番ビルドのみで有効です。
-
-一度オンラインで読み込むとオフラインで起動・編集できます。リストは同じ端末・同じブラウザ・同じ配信元のlocalStorageに保存され、同期されません。ブラウザデータの消去、プライベートブラウズの終了、端末の紛失で失われる場合があります。
-
-## 操作
-
-- 左上のボード名から一覧を開いて切り替え。選択中のボードにチェックを表示
-- 一覧の「＋ ボードを追加」で作成（名前は1〜40文字、同名不可）
-- 各ボードの「⋮」から名前変更・削除。最後の1枚は削除不可
-- 画面下部の固定入力欄でタイトルを入力し、↑またはキーボードの確定で追加（最大200文字）。追加後も続けて入力可能
-- 項目を右にスワイプ、または丸いボタンで完了・未完了を切り替え
-- 完了した項目は折りたたみ・まとめて削除可能
-- タスクの完了や一括削除は7秒以内なら「元に戻す」で取り消し。ボード切り替え・追加操作後は取り消し通知を閉じる
-- ボード削除は項目数を確認して実行し、取り消し不可
-- 最後に開いたボードを保存。入力途中の文字はボード別に画面を開いている間のみ保持
-
-旧バージョンのリストは初回起動時に「マイリスト」へ引き継ぎます。保存形式は `tiny.boards.v2` に移行し、元の `tiny.todos.v1` データは変更しません。新形式のデータが壊れている場合は上書きせず、変更操作を停止します。
-
-外部フォント・解析・外部APIへの通信は行いません。
-
-## コード構造
-
-ReactとTypeScriptでUIを構築しています。グローバルCSSはリセットと共通の基本設定だけにし、コンポーネントの見た目は隣接する `*.module.css` に閉じています。
-
-- `src/App.tsx`: ボード・タスク操作、ボード別の入力途中の文字、コンポーネントの接続
-- `src/components/`: ボードパネル、ToDo一覧・行、下部入力欄、通知のReactコンポーネントとCSS Modules
-- `src/hooks/useBoards.ts`: Reactの状態と端末内保存の接続。保存成功後だけ状態を反映し、連続更新・保存失敗・旧データ移行に対応
-- `src/hooks/useToast.ts`: 通知、取り消し、タイマーの状態と後始末
-- `src/domain/`: Reactや保存先に依存しない型・検証・ボードとToDoの操作
-- `src/storage/`: 保存形式の検証と旧データ移行
-- `src/ui/`: Web Animations APIとキーボード表示領域に関するブラウザAPIの薄い補助処理。ReactのEffectで登録・解除
-- `src/main.tsx`: Reactの起動。開発時はStrictModeを有効化
-- `scripts/build-sw.ts`: 本番ビルドからService Workerを生成
-- `tests/`: Vitestによるドメイン・保存・React Hookテスト。HookはReact Testing LibraryとjsdomでStrictMode下の動作を検証
-- `e2e/`: PlaywrightによるPWA・スワイプ・画面遷移・オフラインの実ブラウザテスト
-
-`pnpm test` はVitestの全テストを実行し、`pnpm test:watch` で監視モードになります。Vitestは `tests/` のみを対象にし、PlaywrightのE2Eは `pnpm test:e2e` で実行します。CIも同じコマンドを使用します。
-
-TypeScriptはstrictモードです。`pnpm check` でBiomeのlintとフォーマットを確認し、`pnpm format` で修正できます。依存関係は `pnpm-lock.yaml` に固定しています。
-
-このクラウド環境ではホームディレクトリが書き込み不可のため、コマンド実行時に次を設定します。通常のローカル環境では不要です。
+Upload the contents of `dist/` to your static host. For a site hosted under a subdirectory, set a base path with a trailing slash:
 
 ```sh
-export XDG_DATA_HOME=/workspace/.local/share
-export XDG_CACHE_HOME=/workspace/.cache
-pnpm install --frozen-lockfile --store-dir /workspace/.pnpm-store
+VITE_BASE_PATH=/tinytodo/ pnpm build
 ```
 
-## アニメーション
+The asset URLs, PWA manifest, service worker scope, and offline cache support both root and subdirectory deployments.
 
-Reactの描画に合わせてWeb Animations APIとCSS Modulesで動きを付けています。アニメーション専用ライブラリは追加していません。
+### GitHub Pages
 
-- パネル開閉・ドラッグ・戻り: `sheet-motion.ts`
-- タスクの追加・完了・削除と行の詰め直し: `list-motion.ts`
-- 共通の時間・イージングと動きの抑制: `motion.ts`
-- 通知の状態・出入り: `useToast.ts` と `Toast.tsx`
+The [GitHub Actions workflow](.github/workflows/ci.yml) runs lint, Vitest, type checks, a production build, and Playwright on pushes and pull requests. Browser tests use `/tinytodo/` to exercise the Pages deployment path. Failure reports and traces are retained for seven days.
 
-動きは160〜260msを基本に、transformとopacityを中心にしています。OSの `prefers-reduced-motion` に従って動きを省略し、保存の成否や状態更新はアニメーションの終了に依存させません。パネルは終了までモーダルを維持し、閉じた後にボード切り替えボタンへフォーカスを戻します。連続Escape・再表示・ドラッグ・動きの抑制・連続完了と取り消しをブラウザテストで確認しています。Android実機のジェスチャー・キーボード挙動は別途確認が必要です。
+Pushes to `master`, including merged pull requests, deploy to Pages only after all checks pass. The deployment base path is read from the Pages configuration. The workflow can also be run manually on `master`.
 
-## GitHub Actions / Pages
+For initial setup, select **Settings → Pages → Build and deployment → Source → GitHub Actions**. No personal access token is required.
 
-`.github/workflows/ci.yml` は全ブランチへのPushとPRでLint・フォーマット、単体テスト、型チェック、本番ビルド、Chromiumのブラウザテストを実行します。CIはPagesと同じ `/tinytodo/` 配下で動作を検証します。失敗時はトレース・レポートを7日間保存します。
+## Data and privacy
 
-`master` へのマージ（Push）後はチェック成功時のみGitHub Pagesへデプロイします。`master` を対象に手動実行も可能です。デプロイ用のパスはPages設定から取得するため、カスタムドメインにも対応できます。
+Lists are stored in `localStorage` for the current browser and origin. They are not synced between devices. Clearing browser data, ending a private browsing session, or losing the device can remove your lists. Moving to a different origin creates a separate storage area.
 
-初回のみGitHubのリポジトリ **Settings → Pages → Build and deployment → Source** を **GitHub Actions** に設定してください。リポジトリでActionsが無効になっている場合は有効化も必要です。個人アクセストークンの登録は不要で、デプロイジョブだけにPages書き込みとOIDC権限を付与しています。
+Board names are limited to 40 characters and task titles to 200. Board names must be unique. The last remaining board cannot be deleted, and deleting a board requires confirmation because its tasks are also removed.
 
-ローカルでPagesと同じパスを確認する場合:
+Task completion and clearing completed tasks can be undone for seven seconds. Adding a task or switching boards dismisses the undo notice. Unsaved input is kept per board for the current session.
 
-```sh
-VITE_BASE_PATH=/tinytodo/ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium pnpm test:e2e
+Legacy `tiny.todos.v1` lists migrate into a **My list** board. Existing `tiny.boards.v2` data, including user-provided names and titles, is preserved. Invalid saved data is not overwritten.
+
+## Project structure
+
+```text
+src/
+  App.tsx         Application composition and task actions
+  components/     React components and colocated CSS Modules
+  hooks/          Persistent board state and notification state
+  domain/         Framework-independent models and operations
+  storage/        Storage validation and legacy data migration
+  ui/             Animation and viewport browser integrations
+scripts/          Deployment paths and service worker generation
+tests/            Vitest unit and Hook tests
+e2e/              Playwright browser tests
 ```
 
-公開先を変更するとオリジンが変わる場合があり、その場合は端末内の既存リストとは別の保存領域になります。
+Global CSS contains only resets and shared defaults. Browser integrations are attached and cleaned up through React effects. Animations use the Web Animations API and CSS; storage updates do not wait for animation completion.
+
+## Contributing
+
+[Issues](https://github.com/ueokande/tinytodo/issues) and pull requests are welcome. Include reproduction steps for bugs and tests for behavior changes. Run `pnpm check`, `pnpm test`, and `pnpm test:e2e` before submitting a pull request.
+
+## License
+
+A license has not yet been specified.

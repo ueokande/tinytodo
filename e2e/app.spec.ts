@@ -5,14 +5,14 @@ test("add, swipe, undo, reload, clear and offline restart", async ({
   context,
 }) => {
   await page.goto("./");
-  await page.getByLabel("新しい項目のタイトル").fill("牛乳");
-  await page.getByRole("button", { name: "項目を追加" }).click();
+  await page.getByLabel("New task title").fill("Milk");
+  await page.getByRole("button", { name: "Add task" }).click();
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "牛乳",
+    "Milk",
   );
   await page.reload();
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "牛乳",
+    "Milk",
   );
   const row = page.locator("#active [data-testid=todo-content]");
   const box = await row.boundingBox();
@@ -22,37 +22,37 @@ test("add, swipe, undo, reload, clear and offline restart", async ({
   await page.mouse.move(box.x + 205, box.y + 30, { steps: 10 });
   await page.mouse.up();
   await expect(page.locator("#done [data-testid=todo-title]")).toHaveText(
-    "牛乳",
+    "Milk",
   );
-  await page.getByRole("button", { name: "元に戻す" }).click();
+  await page.getByRole("button", { name: "Undo" }).click();
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "牛乳",
+    "Milk",
   );
-  await page.getByRole("button", { name: "牛乳を完了にする" }).click();
-  await page.getByRole("button", { name: "まとめて削除" }).click();
+  await page.getByRole("button", { name: "Mark Milk as complete" }).click();
+  await page.getByRole("button", { name: "Clear completed" }).click();
   await expect(page.locator("#completed")).toBeHidden();
-  await page.getByRole("button", { name: "元に戻す" }).click();
+  await page.getByRole("button", { name: "Undo" }).click();
   await expect(page.locator("#done [data-testid=todo-title]")).toHaveText(
-    "牛乳",
+    "Milk",
   );
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
   });
   await page.reload();
   await expect(page.locator("#done [data-testid=todo-title]")).toHaveText(
-    "牛乳",
+    "Milk",
   );
   await page.waitForFunction(() => !!navigator.serviceWorker.controller);
   await context.setOffline(true);
   await page.reload();
   await expect(page.locator("#done [data-testid=todo-title]")).toHaveText(
-    "牛乳",
+    "Milk",
   );
-  await page.getByLabel("新しい項目のタイトル").fill("パン");
-  await page.getByRole("button", { name: "項目を追加" }).click();
+  await page.getByLabel("New task title").fill("Bread");
+  await page.getByRole("button", { name: "Add task" }).click();
   await page.reload();
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "パン",
+    "Bread",
   );
   await page.screenshot({
     path: "/tmp/tinytodo-mobile.png",
@@ -62,10 +62,8 @@ test("add, swipe, undo, reload, clear and offline restart", async ({
 });
 test("title is rendered as text", async ({ page }) => {
   await page.goto("./");
-  await page
-    .getByLabel("新しい項目のタイトル")
-    .fill("<img src=x onerror=alert(1)>");
-  await page.getByRole("button", { name: "項目を追加" }).click();
+  await page.getByLabel("New task title").fill("<img src=x onerror=alert(1)>");
+  await page.getByRole("button", { name: "Add task" }).click();
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
     "<img src=x onerror=alert(1)>",
   );
@@ -76,13 +74,13 @@ test("existing saved items survive the UI migration", async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem(
       "tiny.todos.v1",
-      JSON.stringify([{ id: "existing", title: "買い物メモ", done: false }]),
+      JSON.stringify([{ id: "existing", title: "Shopping note", done: false }]),
     );
   });
   await page.goto("./");
   await expect(page.locator("#board-name")).toBeVisible();
   await expect(page.locator("#active [data-testid=todo-title]")).toHaveText(
-    "買い物メモ",
+    "Shopping note",
   );
   await expect(page.locator("footer, .intro")).toHaveCount(0);
 });
@@ -97,7 +95,7 @@ test("bottom composer stays visible and leaves room for the last item and undo",
         JSON.stringify(
           Array.from({ length: 25 }, (_, i) => ({
             id: String(i),
-            title: `項目${i + 1}`,
+            title: `Task ${i + 1}`,
             done: false,
           })),
         ),
@@ -117,14 +115,14 @@ test("bottom composer stays visible and leaves room for the last item and undo",
     .boundingBox();
   if (!last || !after) throw new Error("Missing layout bounds");
   expect(last.y + last.height).toBeLessThanOrEqual(after.y);
-  await page.getByLabel("新しい項目のタイトル").fill("追加した項目");
-  await page.getByLabel("新しい項目のタイトル").press("Enter");
+  await page.getByLabel("New task title").fill("New task");
+  await page.getByLabel("New task title").press("Enter");
   await expect(
     page.locator("#active [data-testid=todo-title]").last(),
-  ).toHaveText("追加した項目");
-  await expect(page.getByLabel("新しい項目のタイトル")).toBeFocused();
+  ).toHaveText("New task");
+  await expect(page.getByLabel("New task title")).toBeFocused();
   await page
-    .getByRole("button", { name: "項目1を完了にする", exact: true })
+    .getByRole("button", { name: "Mark Task 1 as complete", exact: true })
     .click();
   const toast = await page.locator("#toast").boundingBox();
   const bar = await composer.boundingBox();
@@ -143,7 +141,7 @@ test("composer follows simulated keyboard resize and viewport pan", async ({
     Object.defineProperty(window, "visualViewport", { value: viewport });
   });
   await page.goto("./");
-  await page.getByLabel("新しい項目のタイトル").focus();
+  await page.getByLabel("New task title").focus();
   await page.evaluate(() => {
     if (!window.visualViewport) throw new Error("Visual viewport missing");
     Object.assign(window.visualViewport, { height: window.innerHeight - 300 });

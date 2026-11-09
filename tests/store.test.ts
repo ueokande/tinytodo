@@ -3,7 +3,7 @@ import { createItem, toggle } from "../src/domain/todo.ts";
 import { read, write } from "../src/storage/todo-storage.ts";
 
 test("titles are trimmed and empty or oversized entries rejected", () => {
-  assert.equal(createItem(" 牛乳 ")?.title, "牛乳");
+  assert.equal(createItem(" Milk ")?.title, "Milk");
   assert.equal(createItem("  "), null);
   assert.equal(createItem("a".repeat(201)), null);
 });
@@ -13,8 +13,8 @@ test("completion and undo persist across reloads", () => {
     getItem: () => value,
     setItem: (_k: string, v: string) => (value = v),
   };
-  const milk = createItem("牛乳");
-  const bread = createItem("パン");
+  const milk = createItem("Milk");
+  const bread = createItem("Bread");
   assert.ok(milk);
   assert.ok(bread);
   const items = [milk, bread];
