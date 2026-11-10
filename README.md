@@ -11,7 +11,7 @@ A minimal, offline-first to-do app for shopping lists and quick notes. Built wit
 - A bottom input bar for quick, one-handed entry.
 - Undo task completion and clearing completed tasks.
 - Create, rename, archive, restore, and delete boards; remember the last active board you opened.
-- Edit mode with drag handles for task and board ordering, plus individual task deletion.
+- Edit mode with task renaming, drag handles for task and board ordering, and individual task deletion.
 - Installable PWA with offline access after the first online visit.
 - Short animations that respect reduced-motion preferences.
 - No accounts, analytics, external fonts, or application backend.
@@ -103,13 +103,13 @@ Lists are stored in `localStorage` for the current browser and origin. They are 
 
 Board names are limited to 40 characters and task titles to 200. Board names must be unique. The last active board cannot be archived or deleted, and deleting a board requires confirmation because its tasks are also removed. Archived boards keep their tasks and can be restored from **Archived**.
 
-Task completion, individual deletion, and clearing completed tasks can be undone for seven seconds. Adding a task or switching boards dismisses the undo notice. Unsaved input is kept per board for the current session.
+Task renaming, completion, individual deletion, and clearing completed tasks can be undone for seven seconds. Adding a task or switching boards dismisses the undo notice. Unsaved input is kept per board for the current session.
 
 Legacy `tiny.todos.v1` lists migrate into a **My list** board. Existing `tiny.boards.v2` data, including user-provided names and titles, is preserved. Invalid saved data is not overwritten.
 
 ## Organizing lists
 
-Choose **Edit** beside the board title to show task drag handles and delete buttons, then **Done** to return to the list. Tasks reorder within their active or completed group; editing disables swipe completion. Drag a handle with a mouse or touch, or focus it and use Space to pick up, arrow keys to move, and Space to drop. Escape cancels a drag. Task deletion is immediate with a seven-second **Undo**.
+Choose **Edit** beside the board title to show task drag handles and delete buttons, then **Done** to return to the list. Tap a task title in edit mode to rename it inline. Enter or **Save** commits the title; **Cancel** or Escape discards the draft. Empty titles are rejected, and a failed save keeps the draft open. Renaming preserves completion status and order. Tasks reorder within their active or completed group; editing disables swipe completion. Drag a handle with a mouse or touch, or focus it and use Space to pick up, arrow keys to move, and Space to drop. Escape cancels a drag. Task deletion is immediate with a seven-second **Undo**.
 
 Open the board picker and choose its **Edit** button to reorder active boards. Board menus include **Archive**; archived boards are hidden from the picker and available under **Archived → Restore**. Archiving the current board switches to the first active board. Restoring appends the board to the active order without changing its tasks. Orders and archive status persist locally and work offline.
 

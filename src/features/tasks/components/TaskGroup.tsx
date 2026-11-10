@@ -10,6 +10,7 @@ interface Props {
   onToggle: (id: string) => void;
   hidden?: boolean;
   editing: boolean;
+  onRename: (id: string, title: string) => boolean;
   onDelete: (id: string) => void;
   onMove: (id: string, targetId: string) => void;
   ref?: Ref<HTMLDivElement>;
@@ -22,6 +23,7 @@ export function TaskGroup({
   ref,
   editing,
   onDelete,
+  onRename,
   onMove,
 }: Props) {
   return (
@@ -36,6 +38,7 @@ export function TaskGroup({
               item={item}
               onToggle={onToggle}
               onDelete={onDelete}
+              onRename={onRename}
               handle={handle}
             />
           )}

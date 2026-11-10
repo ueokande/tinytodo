@@ -9,6 +9,7 @@ interface Props {
   onToggle: (id: string) => void;
   onClear: () => void;
   editing: boolean;
+  onRename: (id: string, title: string) => boolean;
   onDelete: (id: string) => void;
   onMove: (id: string, targetId: string) => void;
 }
@@ -18,6 +19,7 @@ export function TodoList({
   onClear,
   editing,
   onDelete,
+  onRename,
   onMove,
 }: Props) {
   const container = useRef<HTMLElement>(null);
@@ -30,6 +32,7 @@ export function TodoList({
         onToggle={onToggle}
         editing={editing}
         onDelete={onDelete}
+        onRename={onRename}
         onMove={onMove}
       />
       <CompletedTasks
@@ -37,6 +40,7 @@ export function TodoList({
         onToggle={onToggle}
         editing={editing}
         onDelete={onDelete}
+        onRename={onRename}
         onMove={onMove}
         onClear={onClear}
       />

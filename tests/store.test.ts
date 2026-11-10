@@ -1,5 +1,5 @@
 import { assert, test } from "vitest";
-import { createItem, toggle } from "../src/domain/todo.ts";
+import { createItem, renameTask, toggle } from "../src/domain/todo.ts";
 import { read, write } from "../src/storage/todo-storage.ts";
 
 test("titles are trimmed and empty or oversized entries rejected", () => {
@@ -38,4 +38,20 @@ test("corrupt data and failed writes surface errors", () => {
       [],
     ),
   );
+});
+
+test("renaming changes only the title and validates the task and length", () => {
+  const items = [
+    { id: "milk", title: "Milk", done: true },
+    { id: "bread", title: "Bread", done: false },
+  ];
+  const renamed = renameTask(items, "milk", " Oat milk ");
+  assert.deepEqual(renamed, [
+    { id: "milk", title: "Oat milk", done: true },
+    items[1],
+  ]);
+  assert.equal(items[0].title, "Milk");
+  assert.throws(() => renameTask(items, "milk", " "));
+  assert.throws(() => renameTask(items, "milk", "x".repeat(201)));
+  assert.throws(() => renameTask(items, "missing", "Title"));
 });

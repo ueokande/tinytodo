@@ -35,3 +35,17 @@ export function reorderTasks(
     item.done === source.done ? group[index++] : item,
   );
 }
+
+export function renameTask(
+  items: readonly Todo[],
+  id: string,
+  title: string,
+): Todo[] {
+  const clean = title.trim();
+  if (!clean || clean.length > MAX_TITLE_LENGTH)
+    throw new Error("Invalid task title");
+  if (!items.some((item) => item.id === id)) throw new Error("Task is missing");
+  return items.map((item) =>
+    item.id === id ? { ...item, title: clean } : item,
+  );
+}

@@ -63,6 +63,7 @@ export function App() {
         items={app.board.items}
         editing={editing}
         onDelete={app.deleteTask}
+        onRename={app.renameTask}
         onMove={app.reorderTasks}
         onToggle={app.toggleTask}
         onClear={app.clearCompleted}

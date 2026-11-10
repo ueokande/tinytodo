@@ -95,3 +95,11 @@
   width: 21px;
   height: 21px;
 }
+.titleButton {
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 0;
+}

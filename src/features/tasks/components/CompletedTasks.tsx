@@ -9,6 +9,7 @@ interface Props {
   onToggle: (id: string) => void;
   onClear: () => void;
   editing: boolean;
+  onRename: (id: string, title: string) => boolean;
   onDelete: (id: string) => void;
   onMove: (id: string, targetId: string) => void;
 }
@@ -18,6 +19,7 @@ export function CompletedTasks({
   onClear,
   editing,
   onDelete,
+  onRename,
   onMove,
 }: Props) {
   const [folded, setFolded] = useState(false);
@@ -58,6 +60,7 @@ export function CompletedTasks({
         hidden={folded}
         editing={editing}
         onDelete={onDelete}
+        onRename={onRename}
         onMove={onMove}
       />
     </section>
