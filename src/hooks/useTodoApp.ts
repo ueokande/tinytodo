@@ -1,13 +1,24 @@
 import { useEffect, useState } from "react";
 import {
   addBoard,
+  archiveBoard,
   type BoardState,
   deleteBoard,
   renameBoard,
+  reorderBoards,
+  restoreBoard,
+  selectBoard,
   selectedBoard,
   updateBoardItems,
 } from "../domain/board.ts";
-import { createItem, type Todo, toggle } from "../domain/todo.ts";
+import {
+  createItem,
+  MAX_TITLE_LENGTH,
+  renameTask,
+  reorderTasks,
+  type Todo,
+  toggle,
+} from "../domain/todo.ts";
 import type { TodoStorage } from "../storage/todo-storage.ts";
 import { useBoards } from "./useBoards.ts";
 import { useOfflineSupport } from "./useOfflineSupport.ts";
@@ -81,8 +92,38 @@ export function useTodoApp(storage?: TodoStorage) {
         "Completed tasks cleared",
       );
     },
+    deleteTask(id: string) {
+      return commitTasks(
+        (items) => items.filter((item) => item.id !== id),
+        "Task deleted",
+      );
+    },
+    renameTask(id: string, title: string) {
+      const clean = title.trim();
+      const item = selectedBoard(getState()).items.find(
+        (item) => item.id === id,
+      );
+      if (!item || !clean || clean.length > MAX_TITLE_LENGTH) return false;
+      if (item.title === clean) return true;
+      return commitTasks(
+        (items) => renameTask(items, id, clean),
+        "Task renamed",
+      );
+    },
+    reorderTasks(id: string, targetId: string) {
+      return commitTasks((items) => reorderTasks(items, id, targetId));
+    },
+    reorderBoards(id: string, targetId: string) {
+      return changeBoards((current) => reorderBoards(current, id, targetId));
+    },
+    archiveBoard(id: string) {
+      return changeBoards((current) => archiveBoard(current, id));
+    },
+    restoreBoard(id: string) {
+      return changeBoards((current) => restoreBoard(current, id));
+    },
     selectBoard(id: string) {
-      return changeBoards((current) => ({ ...current, selectedBoardId: id }));
+      return changeBoards((current) => selectBoard(current, id));
     },
     createBoard(name: string) {
       return changeBoards((current) => addBoard(current, name));

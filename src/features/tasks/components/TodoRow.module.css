@@ -82,3 +82,24 @@
     scale: 1;
   }
 }
+.remove {
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  color: #a33c37;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+.remove svg {
+  width: 21px;
+  height: 21px;
+}
+.titleButton {
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 0;
+}

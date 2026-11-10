@@ -1,0 +1,29 @@
+.form {
+  position: relative;
+  background: #fff;
+  padding: 12px 16px;
+  flex: 1;
+  min-width: 0;
+}
+.form input {
+  background: #f7f8f6;
+  border: 1px solid #b7cbbb;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.form input:focus {
+  outline: 2px solid #9cbcaa;
+  outline-offset: 1px;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+.error {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #a33c37;
+  margin: 10px 0 0;
+}

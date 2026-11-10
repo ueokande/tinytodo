@@ -9,6 +9,7 @@ function isBoard(value: unknown): value is Board {
     typeof board.id === "string" &&
     typeof board.name === "string" &&
     board.name.trim().length > 0 &&
+    (board.archived === undefined || typeof board.archived === "boolean") &&
     Array.isArray(board.items) &&
     board.items.every(isTodo)
   );
@@ -26,7 +27,10 @@ function isBoardState(value: unknown): value is BoardState {
     return false;
   const ids = state.boards.map((board) => board.id);
   return (
-    new Set(ids).size === ids.length && ids.includes(state.selectedBoardId)
+    new Set(ids).size === ids.length &&
+    state.boards.some(
+      (board) => board.id === state.selectedBoardId && !board.archived,
+    )
   );
 }
 export function readBoards(storage: Pick<TodoStorage, "getItem">): BoardState {

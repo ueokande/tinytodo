@@ -16,6 +16,7 @@ interface Props {
   id: string;
   label: string;
   children: ReactNode;
+  toolbar?: ReactNode;
   ref?: Ref<BottomSheetHandle>;
   onClose: () => void;
   onBack?: () => void;
@@ -26,6 +27,7 @@ export function BottomSheet({
   id,
   label,
   children,
+  toolbar,
   ref,
   onClose,
   onBack,
@@ -92,6 +94,7 @@ export function BottomSheet({
         >
           ←
         </Button>
+        {toolbar}
         <Button
           className={styles.close}
           aria-label="Close"

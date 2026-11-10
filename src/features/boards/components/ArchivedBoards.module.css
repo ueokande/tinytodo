@@ -1,0 +1,17 @@
+.heading {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 12px 12px 16px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 12px;
+  color: #647b6c;
+}
