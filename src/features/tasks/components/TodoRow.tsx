@@ -8,14 +8,24 @@ import styles from "./TodoRow.module.css";
 
 interface Props {
   item: Todo;
+  dragging?: boolean;
   onToggle: (id: string) => void;
   onDelete?: (id: string) => void;
   handle?: ReactNode;
   onRename?: (id: string, title: string) => boolean;
 }
-export function TodoRow({ item, onToggle, onDelete, handle, onRename }: Props) {
+export function TodoRow({
+  item,
+  onToggle,
+  onDelete,
+  handle,
+  onRename,
+  dragging = false,
+}: Props) {
   const [renaming, setRenaming] = useState(false);
-  const titlePress = useRef<{ x: number; y: number } | null>(null);
+  const titlePress = useRef<{ x: number; y: number; moved: boolean } | null>(
+    null,
+  );
   const titleButton = useRef<HTMLButtonElement>(null);
   const restoreFocus = useRef(false);
   useLayoutEffect(() => {
@@ -28,8 +38,9 @@ export function TodoRow({ item, onToggle, onDelete, handle, onRename }: Props) {
     restoreFocus.current = true;
     setRenaming(false);
   };
-  const { contentRef, ready, ...handlers } = useSwipeCompletion(() =>
-    onToggle(item.id),
+  const { contentRef, ready, ...handlers } = useSwipeCompletion(
+    () => onToggle(item.id),
+    dragging,
   );
   return (
     <div
@@ -67,7 +78,7 @@ export function TodoRow({ item, onToggle, onDelete, handle, onRename }: Props) {
               {item.done && <CheckIcon />}
             </button>
           )}
-          {handle && onRename ? (
+          {onRename ? (
             <button
               type="button"
               ref={titleButton}
@@ -75,7 +86,25 @@ export function TodoRow({ item, onToggle, onDelete, handle, onRename }: Props) {
               data-testid="todo-title"
               aria-label={`Rename ${item.title}`}
               onPointerDown={(event) => {
-                titlePress.current = { x: event.clientX, y: event.clientY };
+                titlePress.current = {
+                  x: event.clientX,
+                  y: event.clientY,
+                  moved: false,
+                };
+              }}
+              onPointerMove={(event) => {
+                const start = titlePress.current;
+                if (
+                  start &&
+                  Math.hypot(
+                    event.clientX - start.x,
+                    event.clientY - start.y,
+                  ) >= 10
+                )
+                  start.moved = true;
+              }}
+              onPointerCancel={() => {
+                if (titlePress.current) titlePress.current.moved = true;
               }}
               onClick={(event) => {
                 const start = titlePress.current;
@@ -83,8 +112,11 @@ export function TodoRow({ item, onToggle, onDelete, handle, onRename }: Props) {
                 if (
                   event.detail === 0 ||
                   !start ||
-                  Math.hypot(event.clientX - start.x, event.clientY - start.y) <
-                    10
+                  (!start.moved &&
+                    Math.hypot(
+                      event.clientX - start.x,
+                      event.clientY - start.y,
+                    ) < 10)
                 )
                   setRenaming(true);
               }}

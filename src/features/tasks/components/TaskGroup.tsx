@@ -28,26 +28,22 @@ export function TaskGroup({
 }: Props) {
   return (
     <div id={id} ref={ref} className={styles.items} hidden={hidden}>
-      {editing ? (
-        <SortableList
-          items={items.map((item) => ({ ...item, name: item.title }))}
-          onMove={onMove}
-        >
-          {(item, handle) => (
-            <TodoRow
-              item={item}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              onRename={onRename}
-              handle={handle}
-            />
-          )}
-        </SortableList>
-      ) : (
-        items.map((item) => (
-          <TodoRow key={item.id} item={item} onToggle={onToggle} />
-        ))
-      )}
+      <SortableList
+        items={items.map((item) => ({ ...item, name: item.title }))}
+        onMove={onMove}
+        longPress={!editing}
+      >
+        {(item, handle, dragging) => (
+          <TodoRow
+            item={item}
+            onToggle={onToggle}
+            onDelete={onDelete}
+            onRename={onRename}
+            handle={editing ? handle : undefined}
+            dragging={dragging}
+          />
+        )}
+      </SortableList>
     </div>
   );
 }

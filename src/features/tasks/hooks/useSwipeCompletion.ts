@@ -2,7 +2,7 @@ import { type PointerEvent, useEffect, useRef, useState } from "react";
 import { animate, motion } from "../../../ui/motion.ts";
 
 const COMPLETE_DISTANCE = 80;
-export function useSwipeCompletion(onComplete: () => void) {
+export function useSwipeCompletion(onComplete: () => void, dragging = false) {
   const contentRef = useRef<HTMLDivElement>(null);
   const gesture = useRef<{
     id: number;
@@ -33,7 +33,8 @@ export function useSwipeCompletion(onComplete: () => void) {
     if (
       !event.isPrimary ||
       event.button !== 0 ||
-      (event.target instanceof Element && event.target.closest("button"))
+      (event.target instanceof Element &&
+        event.target.closest("button:not([data-testid=todo-title])"))
     )
       return;
     settling.current?.cancel();
@@ -45,6 +46,10 @@ export function useSwipeCompletion(onComplete: () => void) {
     };
   }
   function onPointerMove(event: PointerEvent) {
+    if (dragging) {
+      reset();
+      return;
+    }
     const start = gesture.current;
     if (!start || start.id !== event.pointerId) return;
     const dx = event.clientX - start.x,
@@ -63,7 +68,7 @@ export function useSwipeCompletion(onComplete: () => void) {
   function onPointerUp() {
     const complete = (gesture.current?.distance ?? 0) >= COMPLETE_DISTANCE;
     reset();
-    if (complete) onComplete();
+    if (complete && !dragging) onComplete();
   }
   return {
     contentRef,

@@ -2,7 +2,9 @@ import {
   closestCenter,
   DndContext,
   KeyboardSensor,
+  MouseSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -24,14 +26,17 @@ interface Entry {
 interface Props<T extends Entry> {
   items: readonly T[];
   onMove: (id: string, targetId: string) => void;
-  children: (item: T, handle: ReactNode) => ReactNode;
+  longPress?: boolean;
+  children: (item: T, handle: ReactNode, dragging: boolean) => ReactNode;
 }
 function SortableEntry({
   item,
+  longPress,
   children,
 }: {
   item: Entry;
-  children: (handle: ReactNode) => ReactNode;
+  longPress: boolean;
+  children: (handle: ReactNode, dragging: boolean) => ReactNode;
 }) {
   const {
     attributes,
@@ -58,8 +63,46 @@ function SortableEntry({
     </button>
   );
   return (
-    <div
+    <fieldset
       ref={setNodeRef}
+      aria-label={item.name}
+      onMouseDown={
+        longPress
+          ? (event) => {
+              if (
+                event.target instanceof Element &&
+                !event.target.closest(
+                  "button:not([data-testid=todo-title]), input, form",
+                )
+              )
+                listeners?.onMouseDown?.(event);
+            }
+          : undefined
+      }
+      onTouchStart={
+        longPress
+          ? (event) => {
+              if (
+                event.target instanceof Element &&
+                !event.target.closest(
+                  "button:not([data-testid=todo-title]), input, form",
+                )
+              )
+                listeners?.onTouchStart?.(event);
+            }
+          : undefined
+      }
+      onContextMenu={
+        longPress
+          ? (event) => {
+              if (
+                event.target instanceof Element &&
+                !event.target.closest("input, form")
+              )
+                event.preventDefault();
+            }
+          : undefined
+      }
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
@@ -67,17 +110,29 @@ function SortableEntry({
       }}
       className={`${styles.entry} ${isDragging ? styles.dragging : ""}`}
     >
-      {children(handle)}
-    </div>
+      {children(handle, isDragging)}
+    </fieldset>
   );
 }
 export function SortableList<T extends Entry>({
   items,
   onMove,
   children,
+  longPress = false,
 }: Props<T>) {
-  const sensors = useSensors(
+  const handleSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+  const longPressSensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: { delay: 400, tolerance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 400, tolerance: 8 },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
@@ -99,7 +154,7 @@ export function SortableList<T extends Entry>({
           onDragCancel: () => "Reordering cancelled.",
         },
       }}
-      sensors={sensors}
+      sensors={longPress ? longPressSensors : handleSensors}
       collisionDetection={closestCenter}
       onDragEnd={({ active, over }) => {
         if (over && active.id !== over.id)
@@ -111,8 +166,8 @@ export function SortableList<T extends Entry>({
         strategy={verticalListSortingStrategy}
       >
         {items.map((item) => (
-          <SortableEntry key={item.id} item={item}>
-            {(handle) => children(item, handle)}
+          <SortableEntry key={item.id} item={item} longPress={longPress}>
+            {(handle, dragging) => children(item, handle, dragging)}
           </SortableEntry>
         ))}
       </SortableContext>

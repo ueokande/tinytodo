@@ -8,10 +8,11 @@ A minimal, offline-first to-do app for shopping lists and quick notes. Built wit
 
 - Title-only tasks, organized into multiple boards.
 - Swipe right or tap the circle to complete a task.
+- Tap a task title to edit it, or long-press and drag to reorder tasks within their active or completed group.
 - A bottom input bar for quick, one-handed entry.
 - Undo task completion and clearing completed tasks.
 - Create, rename, archive, restore, and delete boards; remember the last active board you opened.
-- Edit mode with task renaming, drag handles for task and board ordering, and individual task deletion.
+- Edit mode with drag handles for task and board ordering (including keyboard controls), task renaming, and individual task deletion.
 - Installable PWA with offline access after the first online visit.
 - Short animations that respect reduced-motion preferences.
 - No accounts, analytics, external fonts, or application backend.
