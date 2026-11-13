@@ -293,3 +293,180 @@ test.describe("touch interactions", () => {
     ).toHaveText(["Notes", "Shopping", "Travel"]);
   });
 });
+
+test("titles open the editor without edit mode and keyboard activation restores focus", async ({
+  page,
+}) => {
+  const title = page.getByRole("button", { name: "Rename Milk", exact: true });
+  await title.click();
+  const input = page.getByRole("textbox", { name: "Task title", exact: true });
+  await expect(input).toBeFocused();
+  await expect(input).toHaveValue("Milk");
+  await input.fill("Oat milk");
+  await input.press("Enter");
+  const renamed = page.getByRole("button", {
+    name: "Rename Oat milk",
+    exact: true,
+  });
+  await expect(renamed).toBeFocused();
+  await renamed.press("Enter");
+  await input.press("Escape");
+  await expect(renamed).toBeFocused();
+  await page
+    .getByRole("button", { name: "Rename Coffee", exact: true })
+    .click();
+  await input.fill("Decaf");
+  await input.press("Enter");
+  await expect(page.locator('#done [data-testid="todo-title"]')).toHaveText([
+    "Decaf",
+    "Tea",
+  ]);
+  await page.reload();
+  await expect(page.locator('#active [data-testid="todo-title"]')).toHaveText([
+    "Oat milk",
+    "Bread",
+  ]);
+  await expect(page.locator('#done [data-testid="todo-title"]')).toHaveText([
+    "Decaf",
+    "Tea",
+  ]);
+});
+
+test("long press reorders normal tasks without editing or completing and Escape cancels", async ({
+  page,
+}) => {
+  const source = page.locator('[data-todo-id="milk"]');
+  const box = await source.getByTestId("todo-title").boundingBox();
+  const target = await page.locator('[data-todo-id="bread"]').boundingBox();
+  if (!box || !target) throw new Error("Tasks missing");
+  await page.mouse.move(box.x + 30, box.y + box.height / 2);
+  await page.mouse.down();
+  await expect(source.locator("..")).toHaveClass(/dragging/);
+  await page.mouse.move(box.x + 130, target.y + target.height / 2, {
+    steps: 12,
+  });
+  await page.mouse.up();
+  await expect(page.locator('#active [data-testid="todo-title"]')).toHaveText([
+    "Bread",
+    "Milk",
+  ]);
+  await expect(
+    page.getByRole("textbox", { name: "Task title", exact: true }),
+  ).toHaveCount(0);
+  await expect(page.locator('#done [data-testid="todo-title"]')).toHaveText([
+    "Coffee",
+    "Tea",
+  ]);
+  await page.reload();
+  await expect(page.locator('#active [data-testid="todo-title"]')).toHaveText([
+    "Bread",
+    "Milk",
+  ]);
+
+  const completed = page.locator('[data-todo-id="coffee"]');
+  const from = await completed.getByTestId("todo-title").boundingBox();
+  const to = await page.locator('[data-todo-id="tea"]').boundingBox();
+  if (!from || !to) throw new Error("Completed tasks missing");
+  await page.mouse.move(from.x + 30, from.y + from.height / 2);
+  await page.mouse.down();
+  await expect(completed.locator("..")).toHaveClass(/dragging/);
+  await page.mouse.move(from.x + 30, to.y + to.height / 2, { steps: 12 });
+  await page.keyboard.press("Escape");
+  await page.mouse.up();
+  await expect(page.locator('#done [data-testid="todo-title"]')).toHaveText([
+    "Coffee",
+    "Tea",
+  ]);
+  await expect(
+    page.getByRole("textbox", { name: "Task title", exact: true }),
+  ).toHaveCount(0);
+});
+
+test.describe("normal task touch gestures", () => {
+  test.use({ hasTouch: true });
+  test("tap edits, long press sorts, and an immediate vertical gesture scrolls", async ({
+    page,
+    context,
+  }) => {
+    await page.getByRole("button", { name: "Rename Milk", exact: true }).tap();
+    const input = page.getByRole("textbox", {
+      name: "Task title",
+      exact: true,
+    });
+    await expect(input).toBeFocused();
+    await input.press("Escape");
+    const row = page.locator('[data-todo-id="milk"]');
+    const from = await row.getByTestId("todo-title").boundingBox();
+    const to = await page.locator('[data-todo-id="bread"]').boundingBox();
+    if (!from || !to) throw new Error("Tasks missing");
+    const cdp = await context.newCDPSession(page);
+    const x = from.x + 30,
+      y = from.y + from.height / 2;
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x, y }],
+    });
+    await expect(row.locator("..")).toHaveClass(/dragging/);
+    for (let step = 1; step <= 12; step++) {
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{ x, y: y + ((to.y + to.height / 2 - y) * step) / 12 }],
+      });
+    }
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      touchPoints: [],
+    });
+    await expect(page.locator('#active [data-testid="todo-title"]')).toHaveText(
+      ["Bread", "Milk"],
+    );
+    await expect(input).toHaveCount(0);
+    expect(await page.evaluate(() => window.getSelection()?.toString())).toBe(
+      "",
+    );
+    await page.reload();
+    await expect(page.locator('#active [data-testid="todo-title"]')).toHaveText(
+      ["Bread", "Milk"],
+    );
+
+    await page.evaluate(() => {
+      const data = JSON.parse(localStorage.getItem("tiny.boards.v2") || "{}");
+      data.boards[0].items = Array.from({ length: 30 }, (_, index) => ({
+        id: `task-${index}`,
+        title: `Task ${index}`,
+        done: false,
+      }));
+      localStorage.setItem("tiny.boards.v2", JSON.stringify(data));
+    });
+    await page.reload();
+    const scrollStart = await page
+      .locator('[data-todo-id="task-5"]')
+      .getByTestId("todo-title")
+      .boundingBox();
+    if (!scrollStart) throw new Error("Scroll task missing");
+    const scrollX = scrollStart.x + 30,
+      scrollY = scrollStart.y + 20;
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x: scrollX, y: scrollY }],
+    });
+    for (let step = 1; step <= 8; step++) {
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{ x: scrollX, y: scrollY - step * 25 }],
+      });
+    }
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      touchPoints: [],
+    });
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY))
+      .toBeGreaterThan(0);
+    await expect(input).toHaveCount(0);
+    await expect(page.locator('#active [data-testid="todo-title"]')).toHaveText(
+      Array.from({ length: 30 }, (_, index) => `Task ${index}`),
+    );
+    await cdp.detach();
+  });
+});
