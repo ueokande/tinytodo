@@ -57,6 +57,7 @@ test("task editing reorders each group, disables swipe completion, and deletes w
     "Bread",
     "Milk",
   ]);
+  await page.locator("#fold").click();
   await keyboardMove(page, "Coffee", "ArrowDown");
   await expect(page.locator('#done [data-testid="todo-title"]')).toHaveText([
     "Tea",
@@ -312,6 +313,7 @@ test("titles open the editor without edit mode and keyboard activation restores 
   await renamed.press("Enter");
   await input.press("Escape");
   await expect(renamed).toBeFocused();
+  await page.locator("#fold").click();
   await page
     .getByRole("button", { name: "Rename Coffee", exact: true })
     .click();
@@ -363,6 +365,7 @@ test("long press reorders normal tasks without editing or completing and Escape 
     "Milk",
   ]);
 
+  await page.locator("#fold").click();
   const completed = page.locator('[data-todo-id="coffee"]');
   const from = await completed.getByTestId("todo-title").boundingBox();
   const to = await page.locator('[data-todo-id="tea"]').boundingBox();

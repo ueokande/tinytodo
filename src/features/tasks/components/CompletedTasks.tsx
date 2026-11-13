@@ -22,7 +22,7 @@ export function CompletedTasks({
   onRename,
   onMove,
 }: Props) {
-  const [folded, setFolded] = useState(false);
+  const [folded, setFolded] = useState(true);
   const group = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     if (!folded && group.current) enter(group.current);

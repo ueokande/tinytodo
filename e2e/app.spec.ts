@@ -21,6 +21,15 @@ test("add, swipe, undo, reload, clear and offline restart", async ({
   await page.mouse.down();
   await page.mouse.move(box.x + 205, box.y + 30, { steps: 10 });
   await page.mouse.up();
+  const fold = page.locator("#fold");
+  await expect(fold).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator("#done")).toBeHidden();
+  await fold.click();
+  await expect(fold).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator("#done")).toBeVisible();
+  await fold.click();
+  await expect(page.locator("#done")).toBeHidden();
+  await fold.click();
   await expect(page.locator("#done [data-testid=todo-title]")).toHaveText(
     "Milk",
   );
@@ -42,9 +51,14 @@ test("add, swipe, undo, reload, clear and offline restart", async ({
   await expect(page.locator("#done [data-testid=todo-title]")).toHaveText(
     "Milk",
   );
+  await expect(fold).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator("#done")).toBeHidden();
   await page.waitForFunction(() => !!navigator.serviceWorker.controller);
   await context.setOffline(true);
   await page.reload();
+  await expect(fold).toHaveAttribute("aria-expanded", "false");
+  await fold.click();
+  await expect(page.locator("#done")).toBeVisible();
   await expect(page.locator("#done [data-testid=todo-title]")).toHaveText(
     "Milk",
   );

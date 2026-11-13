@@ -40,6 +40,7 @@ test("rename supports active and completed tasks, cancel, undo, and offline pers
   await page
     .getByRole("button", { name: "Mark Milk as complete", exact: true })
     .click();
+  await page.locator("#fold").click();
   await page.getByRole("button", { name: "Edit", exact: true }).click();
   await page.getByRole("button", { name: "Rename Milk", exact: true }).click();
   await input.fill("Oat milk");
@@ -57,6 +58,7 @@ test("rename supports active and completed tasks, cancel, undo, and offline pers
   await page.reload();
   await page.waitForFunction(() => !!navigator.serviceWorker.controller);
   await context.setOffline(true);
+  await page.locator("#fold").click();
   await page.getByRole("button", { name: "Edit", exact: true }).click();
   await page
     .getByRole("button", { name: "Rename Oat milk", exact: true })
